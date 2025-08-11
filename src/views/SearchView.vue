@@ -51,22 +51,34 @@
   </template>
   
   <script setup lang="ts">
-  import { ref } from "vue";
-  import { fetchOccupations, type Occupation } from "@/api/occupations";
-  import { useSelectionStore } from "@/store/selection";
-  
-  const store = useSelectionStore();
-  
-  const keyword1 = ref("");
-  const keyword2 = ref("");
-  const keyword3 = ref("");
-  const results = ref<Occupation[]>([]);
-  
-  async function search() {
-    const keywords = [keyword1.value, keyword2.value, keyword3.value].filter(k => k);
-    results.value = await fetchOccupations(keywords);
-  }
-  
+    import { ref, onMounted } from "vue";
+    import { fetchOccupations, type Occupation } from "@/api/occupations";
+    import { useSelectionStore } from "@/store/selection";
+    import { useSearchStore } from "@/store/search";
+
+    const store = useSelectionStore();
+    const searchStore = useSearchStore();
+
+    const keyword1 = ref(searchStore.keywords[0] ?? "");
+    const keyword2 = ref(searchStore.keywords[1] ?? "");
+    const keyword3 = ref(searchStore.keywords[2] ?? "");
+    const results = ref<Occupation[]>(searchStore.results); // ← 初期表示に復元
+
+    async function search() {
+    const keywords = [keyword1.value, keyword2.value, keyword3.value].filter(Boolean).slice(0, 3);
+    searchStore.setKeywords(keywords);
+    const data = await fetchOccupations(keywords);
+    results.value = data;
+    searchStore.setResults(data); // ← 保存
+    }
+
+    // 初回ロード時、キーワードが保存されていて結果が空なら再検索（API最新化）
+    onMounted(() => {
+    if (searchStore.keywords.length && results.value.length === 0) {
+        search();
+    }
+    });
+
   function onClear() {
     // 必要なら確認ダイアログを出す：
     // if (!confirm("Clear all selected codes?")) return;
