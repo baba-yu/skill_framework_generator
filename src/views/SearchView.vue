@@ -1,156 +1,4 @@
-.header {
-  background: white;
-  border-bottom: 1px solid #e5e7eb;
-  padding: 0;
-}
-
-.header-container {
-  width: 100%;
-  height: 64px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 24px;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-weight: 600;
-  color: #1f2937;
-}
-
-.header-actions {
-  position: relative;
-}
-
-.menu-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 4px;
-  color: #6b7280;
-  
-  &:hover {
-    background: #f3f4f6;
-  }
-}
-
-.dropdown-menu {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 8px;
-  min-width: 150px;
-  z-index: 1001;
-}
-
-.menu-item {
-  display: block;
-  width: 100%;
-  padding: 8px 12px;
-  color: #374151;
-  text-decoration: none;
-  border: none;
-  background: none;
-  text-align: left;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background 0.2s ease;
-  
-  &:hover {
-    background: #f3f4f6;
-  }
-}
-
-.menu-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-}.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-}
-
-.modal-content {
-  background: white;
-  border-radius: 12px;
-  max-width: 500px;
-  width: 90%;
-  max-height: 80vh;
-  overflow: hidden;
-  box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
-}
-
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 24px;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.modal-header h3 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-  color: #1f2937;
-}
-
-.modal-close {
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  color: #6b7280;
-  padding: 0;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  
-  &:hover {
-    background: #f3f4f6;
-    color: #1f2937;
-  }
-}
-
-.modal-body {
-  padding: 20px 24px;
-  
-  p {
-    margin: 0 0 16px 0;
-    line-height: 1.6;
-    color: #374151;
-    
-    &:last-child {
-      margin-bottom: 0;
-    }
-  }
-  
-  a {
-    color: #1a73e8;
-    text-decoration: none;
-    
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-}<template>
+<template>
   <div class="search-view">
     <!-- ヘッダー -->
     <AppHeader @open-credit="openCreditModal" />
@@ -165,7 +13,7 @@
               <div class="input-area" @click="focusInput">
                 <!-- 既存のタグ表示 -->
                 <span 
-                  v-for="(tag, index) in searchTags" 
+                  v-for="(tag, index) in search.keywords" 
                   :key="index" 
                   class="tag"
                 >
@@ -177,20 +25,26 @@
                   ref="inputRef"
                   v-model="searchInput"
                   type="text"
-                  placeholder="Search occupation(s)"
+                  :placeholder="search.keywords.length === 0 ? 'Search occupation(s)' : ''"
                   class="tag-input"
+                  :disabled="search.keywords.length >= 3"
                   @keydown.enter="handleEnter"
                   @keydown.space="handleSpace"
                   @keydown.comma.prevent="addTagFromInput"
                 />
               </div>
               
-              <button class="search-btn" @click="executeSearch" :disabled="searchTags.length === 0 && !searchInput.trim()">
+              <button class="search-btn" @click="executeSearch" :disabled="search.keywords.length === 0 && !searchInput.trim()">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
                   <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2"/>
                 </svg>
               </button>
+            </div>
+            
+            <!-- 警告メッセージ -->
+            <div v-if="search.keywords.length >= 3" class="keyword-limit-warning">
+              up to 3 words
             </div>
           </div>
 
@@ -264,7 +118,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { fetchOccupations } from '@/api/occupations';
 import { useSelectionStore } from '@/store/selection';
@@ -278,11 +132,12 @@ const selection = useSelectionStore();
 const search = useSearchStore();
 const loading = useLoadingStore();
 
-const hasSearched = ref(false);
-const searchTags = ref<string[]>([]);
 const searchInput = ref('');
 const showCreditModal = ref(false);
 const inputRef = ref<HTMLInputElement | null>(null);
+
+// 検索実行済みかどうかは、結果が存在するかで判定
+const hasSearched = computed(() => search.results.length > 0);
 
 const isSelected = (code: string) => selection.selectedCodes.includes(code);
 
@@ -290,9 +145,9 @@ function focusInput() {
   inputRef.value?.focus();
 }
 
+// エンターキーではタグ追加のみを行う
 function handleEnter() {
   addTagFromInput();
-  executeSearch();
 }
 
 function handleSpace(e: KeyboardEvent) {
@@ -302,14 +157,18 @@ function handleSpace(e: KeyboardEvent) {
 
 function addTagFromInput() {
   const trimmed = searchInput.value.trim();
-  if (trimmed && !searchTags.value.includes(trimmed)) {
-    searchTags.value.push(trimmed);
+  if (trimmed && !search.keywords.includes(trimmed)) {
+    // storeのkeywordsに追加
+    const newKeywords = [...search.keywords, trimmed];
+    search.setKeywords(newKeywords);
     searchInput.value = '';
   }
 }
 
 function removeTag(index: number) {
-  searchTags.value.splice(index, 1);
+  // storeのkeywordsから削除
+  const newKeywords = search.keywords.filter((_, i) => i !== index);
+  search.setKeywords(newKeywords);
 }
 
 function openCreditModal() {
@@ -320,21 +179,20 @@ function closeCreditModal() {
   showCreditModal.value = false;
 }
 
+// 検索実行は検索ボタンクリック時のみ
 async function executeSearch() {
   // 入力フィールドからもタグを追加
   if (searchInput.value.trim()) {
     addTagFromInput();
   }
   
-  if (searchTags.value.length === 0) return;
+  if (search.keywords.length === 0) return;
   
-  hasSearched.value = true;
   loading.startLoading('search');
   
   try {
-    const results = await fetchOccupations(searchTags.value);
+    const results = await fetchOccupations(search.keywords);
     search.setResults(results);
-    search.setKeywords(searchTags.value);
   } catch (error) {
     console.error('Search failed:', error);
     search.setResults([]);
@@ -358,6 +216,12 @@ function goToPreview() {
     query: { codes: selection.selectedCodes.join(',') }
   });
 }
+
+// コンポーネントマウント時の処理
+onMounted(() => {
+  // ストアに保存された検索結果がある場合は、既に検索実行済みとみなす
+  // 特に追加の処理は必要なし（hasSearchedはcomputedで自動計算）
+});
 </script>
 
 <style scoped lang="scss">
@@ -387,7 +251,7 @@ function goToPreview() {
 }
 
 .search-form {
-  flex: 0 0 400px;
+  flex: 0 0 500px; // 400px → 500px に拡大
 }
 
 .spacer {
@@ -400,9 +264,15 @@ function goToPreview() {
   border: 1px solid #d1d5db;
   border-radius: 8px;
   background: white;
-  padding: 8px 12px;
+  padding: 4px 12px; // 6px → 4px に調整（input-areaのpaddingと合わせて調整）
   gap: 8px;
   cursor: text;
+  height: 42px;
+  width: 500px;
+  max-width: 500px;
+  min-width: 500px;
+  box-sizing: border-box;
+  position: relative;
   
   &:focus-within {
     border-color: #1a73e8;
@@ -414,10 +284,37 @@ function goToPreview() {
   display: flex;
   align-items: center;
   gap: 6px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   flex: 1;
-  min-height: 32px;
+  height: 100%;
   cursor: text;
+  overflow-x: auto;
+  overflow-y: hidden;
+  min-width: 0; // flexアイテムが親の幅を超えないように
+  padding: 2px 0; // タグの角丸が切れないように上下にパディング追加
+  
+  // 横スクロールバーのスタイル
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #f8f9fa;
+    border-radius: 2px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 2px;
+    
+    &:hover {
+      background: #94a3b8;
+    }
+  }
+  
+  // Firefox用のスクロールバー
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f8f9fa;
 }
 
 .tag {
@@ -429,7 +326,9 @@ function goToPreview() {
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 14px;
-  flex-shrink: 0;
+  flex-shrink: 0; // タグのサイズを固定
+  white-space: nowrap; // タグ内のテキストが改行されないように
+  height: 24px; // 固定の高さ
 }
 
 .tag-remove {
@@ -451,91 +350,36 @@ function goToPreview() {
   outline: none;
   background: transparent;
   font-size: 16px;
-  min-width: 120px;
-  flex: 1;
+  width: 150px; // 少し幅を広げる
+  max-width: 150px; // 最大幅を制限
+  min-width: 150px; // 最小幅を制限
+  flex: 0 0 150px;
   padding: 4px 0;
+  white-space: nowrap;
+  height: 24px;
+  overflow: hidden; // テキストオーバーフローを隠す
+  text-overflow: ellipsis; // 長い文字列は省略記号で表示
   
   &::placeholder {
     color: #9ca3af;
   }
-}
-
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-}
-
-.modal-content {
-  background: white;
-  border-radius: 12px;
-  max-width: 500px;
-  width: 90%;
-  max-height: 80vh;
-  overflow: hidden;
-  box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
-}
-
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 24px;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.modal-header h3 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-  color: #1f2937;
-}
-
-.modal-close {
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  color: #6b7280;
-  padding: 0;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
   
-  &:hover {
-    background: #f3f4f6;
-    color: #1f2937;
-  }
-}
-
-.modal-body {
-  padding: 20px 24px;
-  
-  p {
-    margin: 0 0 16px 0;
-    line-height: 1.6;
-    color: #374151;
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
     
-    &:last-child {
-      margin-bottom: 0;
+    &::placeholder {
+      color: #d1d5db;
     }
   }
-  
-  a {
-    color: #1a73e8;
-    text-decoration: none;
-    
-    &:hover {
-      text-decoration: underline;
-    }
-  }
+}
+
+// 警告メッセージ
+.keyword-limit-warning {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #dc2626;
+  font-weight: 500;
 }
 
 .search-btn {
@@ -607,6 +451,27 @@ function goToPreview() {
 
 .results-area {
   min-height: 400px;
+  max-height: 800px; // より広い表示範囲
+  overflow-y: auto; // 縦スクロール対応
+  
+  // カスタムスクロールバー
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+    
+    &:hover {
+      background: #94a3b8;
+    }
+  }
 }
 
 .loading {
@@ -722,6 +587,29 @@ function goToPreview() {
   
   .spacer {
     display: none;
+  }
+  
+  // モバイルでの検索ボックスの幅調整
+  .search-form {
+    flex: 1 1 auto;
+  }
+  
+  .search-input-container {
+    width: 100%;
+    max-width: none;
+    min-width: 300px;
+  }
+  
+  .tag-input {
+    width: 120px;
+    max-width: 120px;
+    min-width: 120px;
+    flex: 0 0 120px;
+  }
+  
+  // モバイルでの検索結果の高さ調整
+  .results-area {
+    max-height: 700px; // モバイルでもより広く
   }
   
   .occupation-item {
