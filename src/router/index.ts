@@ -15,7 +15,7 @@ const router = createRouter({
 
 router.afterEach(() => {
   const loading = useLoadingStore();
-  loading.stopLoading("nav");     // 遷移が完了したら常に解除
+  loading.stopLoading("nav");
 });
 
 export default router;

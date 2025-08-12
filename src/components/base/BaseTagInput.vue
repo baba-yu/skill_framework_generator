@@ -19,9 +19,9 @@
         </li>
       </ul>
     </div>
-  </template>
+</template>
   
-  <script setup lang="ts">
+<script setup lang="ts">
   import { ref, computed, watch } from "vue";
   
   type Emits = { (e:"update:modelValue", v:string[]):void };
@@ -42,9 +42,10 @@
   });
   
   const value = computed({
-    get: () => props.modelValue ?? [],
-    set: (v) => emit("update:modelValue", v),
+    get: () => Array.isArray(props.modelValue) ? props.modelValue.filter(x => typeof x === "string") : [],
+    set: (v: string[]) => emit("update:modelValue", v),
   });
+
   
   const draft = ref("");
   const inputRef = ref<HTMLInputElement|null>(null);
@@ -117,9 +118,9 @@
   watch(() => props.modelValue, (v) => {
     if (!Array.isArray(v)) emit("update:modelValue", []);
   });
-  </script>
+</script>
   
-  <style scoped lang="scss">
+<style scoped lang="scss">
   @use "@/styles/variables.scss" as *;
   
   .tag-input {
@@ -167,5 +168,5 @@
     font: inherit;
     background: transparent;
   }
-  </style>
+</style>
   

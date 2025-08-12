@@ -1,27 +1,23 @@
+// src/store/search.ts
 import { defineStore } from "pinia";
+import type { Occupation } from "@/api/occupations";
 
-const safeSession: Storage | undefined =
+const storage =
   typeof window !== "undefined" ? window.sessionStorage : undefined;
 
 export const useSearchStore = defineStore("search", {
   state: () => ({
-    k1: "" as string,
-    k2: "" as string,
-    k3: "" as string,
-    // 必要なら結果も保持したい場合は↓を有効化
-    // results: [] as Occupation[],
+    keywords: [] as string[],          // ← 配列で保持
+    results: [] as Occupation[],       // ← 検索結果も保持
   }),
   actions: {
-    setKeywords(k1: string, k2: string, k3: string) {
-      this.k1 = k1; this.k2 = k2; this.k3 = k3;
-    },
-    clearKeywords() {
-      this.k1 = this.k2 = this.k3 = "";
-    },
+    setKeywords(k: string[]) { this.keywords = k.slice(0, 3); },
+    setResults(r: Occupation[]) { this.results = r; },
+    clear() { this.keywords = []; this.results = []; },
   },
   persist: {
-    key: "search-keywords",
-    storage: safeSession,        // タブごとに独立。タブを閉じると消える
-    paths: ["k1", "k2", "k3"],   // 結果は永続化しない（必要なら paths に追加）
+    key: "search-cache",
+    storage,
+    paths: ["keywords", "results"],    // ← 配列keywordsと結果を永続化
   },
 });
