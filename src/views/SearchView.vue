@@ -1,59 +1,217 @@
-<template>
+.header {
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 0;
+}
+
+.header-container {
+  width: 100%;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.header-actions {
+  position: relative;
+}
+
+.menu-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  color: #6b7280;
+  
+  &:hover {
+    background: #f3f4f6;
+  }
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 8px;
+  min-width: 150px;
+  z-index: 1001;
+}
+
+.menu-item {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  color: #374151;
+  text-decoration: none;
+  border: none;
+  background: none;
+  text-align: left;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s ease;
+  
+  &:hover {
+    background: #f3f4f6;
+  }
+}
+
+.menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+}.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow: hidden;
+  box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  
+  &:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+  }
+}
+
+.modal-body {
+  padding: 20px 24px;
+  
+  p {
+    margin: 0 0 16px 0;
+    line-height: 1.6;
+    color: #374151;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+  
+  a {
+    color: #1a73e8;
+    text-decoration: none;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}<template>
   <div class="search-view">
     <!-- ヘッダー -->
-    <header class="header">
-      <div class="header-container">
-        <div class="logo">
-          <svg width="24" height="24" viewBox="0 0 160 160" fill="none">
-            <path d="m93.34,84.44c3.66-2.44,3.66-6.43,0-8.88l-58.69-39.12c-3.66-2.44-6.66-.84-6.66,3.56v80c0,4.4,3,6,6.66,3.56l58.69-39.12Z" 
-                  fill="none" stroke="#4c75f2" stroke-miterlimit="10" stroke-width="5"/>
-          </svg>
-          <span>Skill Framework Generator</span>
-        </div>
-        
-        <div class="header-actions">
-          <button class="menu-btn">⋮</button>
-        </div>
-      </div>
-    </header>
+    <AppHeader @open-credit="openCreditModal" />
 
     <!-- メインコンテンツ -->
     <div class="main-container">
       <!-- 検索エリア -->
       <div class="search-area">
-        <div class="search-form">
-          <div class="search-input-container">
-            <input
-              v-model="searchKeywords"
-              type="text"
-              placeholder="Mechatronics Thermal"
-              class="search-input"
-              @keydown.enter="executeSearch"
-            />
-            <button class="search-btn" @click="executeSearch">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
-                <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2"/>
-              </svg>
+        <div class="search-row">
+          <div class="search-form">
+            <div class="search-input-container">
+              <div class="input-area" @click="focusInput">
+                <!-- 既存のタグ表示 -->
+                <span 
+                  v-for="(tag, index) in searchTags" 
+                  :key="index" 
+                  class="tag"
+                >
+                  {{ tag }}
+                  <button class="tag-remove" @click.stop="removeTag(index)">×</button>
+                </span>
+                <!-- 新しいタグ入力 -->
+                <input
+                  ref="inputRef"
+                  v-model="searchInput"
+                  type="text"
+                  placeholder="Search occupation(s)"
+                  class="tag-input"
+                  @keydown.enter="handleEnter"
+                  @keydown.space="handleSpace"
+                  @keydown.comma.prevent="addTagFromInput"
+                />
+              </div>
+              
+              <button class="search-btn" @click="executeSearch" :disabled="searchTags.length === 0 && !searchInput.trim()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+                  <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="spacer"></div>
+
+          <div class="action-buttons">
+            <button 
+              class="review-btn"
+              :disabled="selection.selectedCodes.length === 0"
+              @click="goToPreview"
+            >
+              Review your framework ({{ selection.selectedCodes.length }})
+            </button>
+            <button 
+              class="clear-btn"
+              :disabled="selection.selectedCodes.length === 0"
+              @click="clearAll"
+            >
+              Clear all
             </button>
           </div>
-        </div>
-
-        <div class="action-buttons">
-          <button 
-            class="review-btn"
-            :disabled="selection.selectedCodes.length === 0"
-            @click="goToPreview"
-          >
-            Review your framework ({{ selection.selectedCodes.length }})
-          </button>
-          <button 
-            class="clear-btn"
-            :disabled="selection.selectedCodes.length === 0"
-            @click="clearAll"
-          >
-            Clear all
-          </button>
         </div>
       </div>
 
@@ -71,12 +229,19 @@
             :class="{ selected: isSelected(occupation.code) }"
             @click="toggleSelection(occupation.code)"
           >
-            <div class="occupation-content">
+            <!-- 左側：タイトルとアクション -->
+            <div class="occupation-left">
               <h3 class="occupation-title">{{ occupation.title }}</h3>
-              <p class="occupation-description">{{ occupation.description }}</p>
               <div class="occupation-actions">
                 <span v-if="isSelected(occupation.code)" class="status added">Added!</span>
                 <span v-else class="status add">Add to your framework</span>
+              </div>
+            </div>
+            
+            <!-- 右側：説明（スクロール可能） -->
+            <div class="occupation-right">
+              <div class="description-container">
+                <p class="occupation-description">{{ occupation.description }}</p>
               </div>
             </div>
           </div>
@@ -92,38 +257,84 @@
         </div>
       </div>
     </div>
+    
+    <!-- クレジットモーダル -->
+    <CreditModal :visible="showCreditModal" @close="closeCreditModal" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { fetchOccupations } from '@/api/occupations';
 import { useSelectionStore } from '@/store/selection';
 import { useSearchStore } from '@/store/search';
 import { useLoadingStore } from '@/store/loading';
+import AppHeader from '@/components/AppHeader.vue';
+import CreditModal from '@/components/CreditModal.vue';
 
 const router = useRouter();
 const selection = useSelectionStore();
 const search = useSearchStore();
 const loading = useLoadingStore();
 
-const searchKeywords = ref('');
 const hasSearched = ref(false);
+const searchTags = ref<string[]>([]);
+const searchInput = ref('');
+const showCreditModal = ref(false);
+const inputRef = ref<HTMLInputElement | null>(null);
 
 const isSelected = (code: string) => selection.selectedCodes.includes(code);
 
+function focusInput() {
+  inputRef.value?.focus();
+}
+
+function handleEnter() {
+  addTagFromInput();
+  executeSearch();
+}
+
+function handleSpace(e: KeyboardEvent) {
+  e.preventDefault();
+  addTagFromInput();
+}
+
+function addTagFromInput() {
+  const trimmed = searchInput.value.trim();
+  if (trimmed && !searchTags.value.includes(trimmed)) {
+    searchTags.value.push(trimmed);
+    searchInput.value = '';
+  }
+}
+
+function removeTag(index: number) {
+  searchTags.value.splice(index, 1);
+}
+
+function openCreditModal() {
+  showCreditModal.value = true;
+}
+
+function closeCreditModal() {
+  showCreditModal.value = false;
+}
+
 async function executeSearch() {
-  if (!searchKeywords.value.trim()) return;
+  // 入力フィールドからもタグを追加
+  if (searchInput.value.trim()) {
+    addTagFromInput();
+  }
+  
+  if (searchTags.value.length === 0) return;
   
   hasSearched.value = true;
   loading.startLoading('search');
   
   try {
-    const keywords = searchKeywords.value.trim().split(/\s+/);
-    const results = await fetchOccupations(keywords);
+    const results = await fetchOccupations(searchTags.value);
     search.setResults(results);
-    search.setKeywords(keywords);
+    search.setKeywords(searchTags.value);
   } catch (error) {
     console.error('Search failed:', error);
     search.setResults([]);
@@ -154,44 +365,7 @@ function goToPreview() {
 
 .search-view {
   min-height: 100vh;
-  background: #f8f9fa;
-}
-
-.header {
-  background: white;
-  border-bottom: 1px solid #e5e7eb;
-  padding: 0 24px;
-}
-
-.header-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  height: 64px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-weight: 600;
-  color: #1f2937;
-}
-
-.menu-btn {
-  background: none;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 4px;
-  color: #6b7280;
-  
-  &:hover {
-    background: #f3f4f6;
-  }
+  background: #ffffff;
 }
 
 .main-container {
@@ -204,48 +378,191 @@ function goToPreview() {
   margin-bottom: 32px;
 }
 
+.search-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+
 .search-form {
-  margin-bottom: 16px;
+  flex: 0 0 400px;
+}
+
+.spacer {
+  flex: 1;
 }
 
 .search-input-container {
   display: flex;
-  max-width: 500px;
+  align-items: center;
   border: 1px solid #d1d5db;
   border-radius: 8px;
-  overflow: hidden;
   background: white;
+  padding: 8px 12px;
+  gap: 8px;
+  cursor: text;
+  
+  &:focus-within {
+    border-color: #1a73e8;
+    box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+  }
 }
 
-.search-input {
+.input-area {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
   flex: 1;
-  padding: 12px 16px;
+  min-height: 32px;
+  cursor: text;
+}
+
+.tag {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #1a73e8;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.tag-remove {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0 2px;
+  
+  &:hover {
+    color: white;
+  }
+}
+
+.tag-input {
   border: none;
   outline: none;
+  background: transparent;
   font-size: 16px;
+  min-width: 120px;
+  flex: 1;
+  padding: 4px 0;
   
   &::placeholder {
     color: #9ca3af;
   }
 }
 
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow: hidden;
+  box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  
+  &:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+  }
+}
+
+.modal-body {
+  padding: 20px 24px;
+  
+  p {
+    margin: 0 0 16px 0;
+    line-height: 1.6;
+    color: #374151;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+  
+  a {
+    color: #1a73e8;
+    text-decoration: none;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
 .search-btn {
-  padding: 12px 16px;
+  padding: 8px 12px;
   background: #1a73e8;
   border: none;
   color: white;
   cursor: pointer;
   display: flex;
   align-items: center;
+  border-radius: 4px;
+  flex-shrink: 0;
   
-  &:hover {
+  &:hover:not(:disabled) {
     background: #1557b0;
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 }
 
 .action-buttons {
   display: flex;
   gap: 12px;
+  flex: 0 0 auto;
 }
 
 .review-btn {
@@ -256,6 +573,7 @@ function goToPreview() {
   border-radius: 6px;
   cursor: pointer;
   font-weight: 500;
+  white-space: nowrap;
   
   &:hover:not(:disabled) {
     background: #1557b0;
@@ -275,6 +593,7 @@ function goToPreview() {
   border-radius: 6px;
   cursor: pointer;
   font-weight: 500;
+  white-space: nowrap;
   
   &:hover:not(:disabled) {
     background: #fef2f2;
@@ -303,6 +622,7 @@ function goToPreview() {
 }
 
 .occupation-item {
+  display: flex;
   background: white;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
@@ -321,6 +641,11 @@ function goToPreview() {
   }
 }
 
+.occupation-left {
+  flex: 0 0 300px;
+  padding-right: 20px;
+}
+
 .occupation-title {
   margin: 0 0 8px 0;
   font-size: 18px;
@@ -328,15 +653,8 @@ function goToPreview() {
   color: #1f2937;
 }
 
-.occupation-description {
-  margin: 0 0 12px 0;
-  color: #6b7280;
-  line-height: 1.5;
-}
-
 .occupation-actions {
-  display: flex;
-  justify-content: flex-end;
+  margin-top: 8px;
 }
 
 .status {
@@ -351,6 +669,24 @@ function goToPreview() {
   &.added {
     color: #059669;
   }
+}
+
+.occupation-right {
+  flex: 1;
+  border-left: 1px solid #e5e7eb;
+  padding-left: 20px;
+}
+
+.description-container {
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+.occupation-description {
+  margin: 0;
+  color: #6b7280;
+  line-height: 1.5;
+  font-size: 14px;
 }
 
 .no-results {
@@ -375,12 +711,35 @@ function goToPreview() {
     padding: 16px;
   }
   
-  .search-input-container {
-    max-width: none;
+  .search-row {
+    flex-direction: column;
+    gap: 16px;
   }
   
-  .action-buttons {
+  .search-form {
+    flex: 1 1 auto;
+  }
+  
+  .spacer {
+    display: none;
+  }
+  
+  .occupation-item {
     flex-direction: column;
+  }
+  
+  .occupation-left {
+    flex: 1 1 auto;
+    padding-right: 0;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  .occupation-right {
+    flex: 1 1 auto;
+    border-left: none;
+    padding-left: 0;
+    padding-top: 16px;
   }
 }
 </style>
