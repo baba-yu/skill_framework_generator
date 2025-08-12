@@ -1,88 +1,75 @@
+<script setup lang="ts">
+import BaseTagInput from "@/components/base/BaseTagInput.vue";
+import { fetchOccupations, type Occupation } from "@/api/occupations";
+import { useSelectionStore } from "@/store/selection";
+import { useSearchStore } from "@/store/search";
+import { useLoadingStore } from "@/store/loading";
+
+const selection = useSelectionStore();
+const search = useSearchStore();      // ← keywords/results はここに保持
+const loading = useLoadingStore();
+
+async function searchSubmit() {
+  const kw = (search.keywords ?? []).filter(Boolean).slice(0,3);
+  if (kw.length === 0) return;
+  loading.startLoading("search");
+  try {
+    console.log("[SEARCH] keywords:", kw);
+    const data: Occupation[] = await fetchOccupations(kw);
+    console.log("[SEARCH] results:", data.length);
+    search.setResults(data);          // ← ストアに保存（persist 対象）
+  } catch (e) {
+    console.error("[SEARCH] failed:", e);
+    search.setResults([]);            // ← 失敗時は空に
+  } finally {
+    loading.stopLoading("search");
+  }
+}
+
+function clearAllSelected() {
+  selection.clearSelection();
+}
+</script>
+
 <template>
-    <div>
-      <h2>Search Occupations</h2>
-  
-      <!-- 検索フォーム -->
-      <form @submit.prevent="search">
-        <input v-model="keyword1" placeholder="Keyword 1" />
-        <input v-model="keyword2" placeholder="Keyword 2" />
-        <input v-model="keyword3" placeholder="Keyword 3" />
+  <div class="container">
+    <h2>Search Occupations</h2>
+
+    <div style="display:flex; gap:12px; align-items:flex-start;">
+      <form @submit.prevent="searchSubmit" style="flex:1; display:flex; flex-direction:column; gap:8px;">
+        <!-- ★ タグ入力はストア配列に直結 -->
+        <BaseTagInput v-model="search.keywords" :max="3" placeholder="Add keyword and press Enter" />
         <button type="submit">Search</button>
       </form>
-  
-      <!-- 選択管理ツールバー -->
-      <div style="margin: .75rem 0; display:flex; gap:.5rem; align-items:center;">
-        <span>Selected: <strong>{{ store.selectedCodes.length }}</strong></span>
+
+      <div style="margin-left:auto; display:flex; gap:8px;">
         <button
           type="button"
-          @click="onClear()"
-          :disabled="store.selectedCodes.length === 0"
-          title="Clear selected codes"
+          :disabled="selection.selectedCodes.length === 0"
+          @click="$router.push({ path: '/preview', query: { codes: selection.selectedCodes.join(',') } })"
         >
-          Clear selection
+          Review your framework ({{ selection.selectedCodes.length }})
         </button>
-  
-        <!-- プレビューへ遷移 -->
-        <router-link
-          v-if="store.selectedCodes.length"
-          :to="{ path: '/preview', query: { codes: store.selectedCodes.join(',') } }"
-          style="margin-left:auto"
-        >
-          Go to Preview ({{ store.selectedCodes.length }} selected)
-        </router-link>
-      </div>
-  
-      <!-- 検索結果 -->
-      <div v-if="results.length">
-        <h3>Results (click to select):</h3>
-        <ul>
-          <li
-            v-for="occ in results"
-            :key="occ.code"
-            :style="{ cursor: 'pointer', background: store.selectedCodes.includes(occ.code) ? '#d0f0d0' : '' }"
-            @click="store.toggleSelection(occ.code)"
-          >
-            <strong>{{ occ.title }}</strong> ({{ occ.code }})
-            <p>{{ occ.description }}</p>
-          </li>
-        </ul>
+        <button type="button" @click="clearAllSelected">Clear all</button>
       </div>
     </div>
-  </template>
-  
-  <script setup lang="ts">
-    import { ref, onMounted } from "vue";
-    import { fetchOccupations, type Occupation } from "@/api/occupations";
-    import { useSelectionStore } from "@/store/selection";
-    import { useSearchStore } from "@/store/search";
 
-    const store = useSelectionStore();
-    const searchStore = useSearchStore();
+    <!-- ★ 結果はストアから直接読む -->
+    <div v-if="search.results.length" style="margin-top:12px;">
+      <h3>Results (click to select):</h3>
+      <ul>
+        <li
+          v-for="occ in search.results"
+          :key="occ.code"
+          :style="{ cursor: 'pointer', background: selection.selectedCodes.includes(occ.code) ? '#d0f0d0' : '' }"
+          @click="selection.toggleSelection(occ.code)"
+        >
+          <strong>{{ occ.title }}</strong> ({{ occ.code }})
+          <p>{{ occ.description }}</p>
+        </li>
+      </ul>
+    </div>
 
-    const keyword1 = ref(searchStore.keywords[0] ?? "");
-    const keyword2 = ref(searchStore.keywords[1] ?? "");
-    const keyword3 = ref(searchStore.keywords[2] ?? "");
-    const results = ref<Occupation[]>(searchStore.results); // ← 初期表示に復元
-
-    async function search() {
-    const keywords = [keyword1.value, keyword2.value, keyword3.value].filter(Boolean).slice(0, 3);
-    searchStore.setKeywords(keywords);
-    const data = await fetchOccupations(keywords);
-    results.value = data;
-    searchStore.setResults(data); // ← 保存
-    }
-
-    // 初回ロード時、キーワードが保存されていて結果が空なら再検索（API最新化）
-    onMounted(() => {
-    if (searchStore.keywords.length && results.value.length === 0) {
-        search();
-    }
-    });
-
-  function onClear() {
-    // 必要なら確認ダイアログを出す：
-    // if (!confirm("Clear all selected codes?")) return;
-    store.clearSelection();
-  }
-  </script>
-  
+    <p v-else style="margin-top:12px; color:#666;">No results yet</p>
+  </div>
+</template>
