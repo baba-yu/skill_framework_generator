@@ -1,0 +1,25 @@
+@use "./variables.scss" as *;
+
+:root {
+  color-scheme: light;
+}
+
+html, body, #app {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: $color-bg;
+  color: $color-text;
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  line-height: $line-height-base;
+}
+
+/* 汎用レイアウト用の薄いユーティリティ（必要最低限） */
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: $space-4;
+}
