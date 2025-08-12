@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import SearchView from '@/views/SearchView.vue';
 import PreviewView from '@/views/PreviewView.vue';
+import { useLoadingStore } from "@/store/loading";
 
 const routes = [
   { path: '/', component: SearchView },
@@ -10,6 +11,11 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+});
+
+router.afterEach(() => {
+  const loading = useLoadingStore();
+  loading.stopLoading("nav");     // 遷移が完了したら常に解除
 });
 
 export default router;
