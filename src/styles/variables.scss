@@ -1,13 +1,16 @@
 /* Colors */
 $color-primary: #1a73e8;
 $color-primary-hover: #1558b6;
-$color-bg: #f6f8fb;
+$color-bg: #f8fafc;
 $color-text: #1f2937;
 $color-muted: #6b7280;
 $color-border: #e5e7eb;
+$color-success: #059669;
+$color-error: #dc2626;
+$color-warning: #d97706;
 
 /* Typography */
-$font-family-base: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+$font-family-base: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 $font-size-base: 16px;
 $line-height-base: 1.5;
 
@@ -16,8 +19,20 @@ $space-1: 4px;
 $space-2: 8px;
 $space-3: 12px;
 $space-4: 16px;
+$space-5: 20px;
 $space-6: 24px;
+$space-8: 32px;
 
 /* Radius & Shadow */
+$radius-sm: 6px;
+$radius-md: 8px;
 $radius-lg: 12px;
+$radius-xl: 16px;
 $shadow-sm: 0 1px 2px rgba(0,0,0,.06);
+$shadow-md: 0 4px 6px rgba(0,0,0,.07);
+$shadow-lg: 0 10px 15px rgba(0,0,0,.1);
+
+/* Z-index */
+$z-dropdown: 1000;
+$z-modal: 1100;
+$z-overlay: 1200;
