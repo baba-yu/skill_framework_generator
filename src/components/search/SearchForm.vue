@@ -70,24 +70,17 @@
       <!-- スペーサー -->
       <div class="spacer"></div>
 
-      <!-- アクションボタン - BaseButtonを使用 -->
+      <!-- アクションボタン -->
       <div class="action-buttons">
+        <!-- プレビュー選択ボタン -->
         <BaseButton 
           variant="primary"
           size="md"
           :disabled="selectedCount === 0"
-          @click="$emit('review')"
+          @click="$emit('openSidebar')"
+          class="preview-button"
         >
-          Build your framework ({{ selectedCount }})
-        </BaseButton>
-        
-        <BaseButton 
-          variant="danger"
-          size="md"
-          :disabled="selectedCount === 0"
-          @click="$emit('clear')"
-        >
-          Clear all
+          Preview selection{{ selectedCount > 1 ? 's' : '' }} ({{ selectedCount }})
         </BaseButton>
       </div>
     </div>
@@ -112,8 +105,7 @@ const props = withDefaults(defineProps<Props>(), {
 // Emits
 interface Emits {
   (e: 'search', keywords: string[]): void;
-  (e: 'review'): void;
-  (e: 'clear'): void;
+  (e: 'openSidebar'): void;
 }
 
 const emit = defineEmits<Emits>();
@@ -448,6 +440,10 @@ defineExpose({
   flex: 0 0 auto;
 }
 
+.preview-button {
+  white-space: nowrap;
+}
+
 /* レスポンシブ対応 */
 @media (max-width: $breakpoint-lg) {
   .search-row {
@@ -465,10 +461,6 @@ defineExpose({
   
   .action-buttons {
     align-self: stretch;
-    
-    > :deep(button) {
-      flex: 1;
-    }
   }
 }
 
