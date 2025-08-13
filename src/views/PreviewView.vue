@@ -50,7 +50,6 @@
           </div>
           
           <div v-else-if="error" class="error-state">
-            <div class="error-icon">⚠️</div>
             <p class="error-message">{{ error }}</p>
           </div>
           
@@ -67,7 +66,6 @@
           </div>
           
           <div v-else class="empty-state">
-            <div class="empty-icon">📁</div>
             <p class="empty-message">No categories available</p>
           </div>
         </div>
@@ -87,12 +85,10 @@
           </div>
           
           <div v-else-if="selectedCategory && !loading.loadingKeys.includes('preview')" class="empty-state">
-            <div class="empty-icon">📝</div>
             <p class="empty-message">No skills available in this category</p>
           </div>
           
           <div v-else-if="!selectedCategory && !loading.loadingKeys.includes('preview')" class="no-selection-state">
-            <div class="no-selection-icon">👆</div>
             <p class="no-selection-message">Select a category to view skills</p>
           </div>
           
@@ -110,24 +106,21 @@
         <!-- 詳細カード -->
         <div class="content-card details-card">
           <div v-if="selectedSkill" class="skill-details">
-            <div class="skill-header">
-              <h4 class="skill-title">{{ selectedSkill.name }}</h4>
-              <div class="skill-category">
-                <span class="category-label">Category:</span>
-                <span class="category-value">{{ formatCategoryName(selectedSkill.category) }}</span>
-              </div>
+            <!-- パンくずナビ -->
+            <div class="skill-breadcrumb">
+              {{ formatCategoryName(selectedSkill.category) }} > {{ selectedSkill.name }}
             </div>
             
-            <div class="skill-description-container">
-              <h5 class="description-title">Description</h5>
-              <div class="skill-description-scroll">
-                <p class="skill-description">{{ selectedSkill.description }}</p>
-              </div>
+            <!-- スキル名 -->
+            <h4 class="skill-title">{{ selectedSkill.name }}</h4>
+            
+            <!-- 説明ボックス -->
+            <div class="skill-description-box">
+              <p class="skill-description">{{ selectedSkill.description }}</p>
             </div>
           </div>
           
           <div v-else-if="selectedCategory && selectedCategorySkills.length === 0" class="empty-state">
-            <div class="empty-icon">📝</div>
             <h4 class="empty-title">No Skills Available</h4>
             <p class="empty-message">
               There are no skills in the "{{ formatCategoryName(selectedCategory) }}" category.
@@ -135,7 +128,6 @@
           </div>
           
           <div v-else-if="selectedCategory" class="no-selection-state">
-            <div class="no-selection-icon">👈</div>
             <h4 class="no-selection-title">Select a Skill</h4>
             <p class="no-selection-message">
               Choose a skill from the list to view its details.
@@ -143,7 +135,6 @@
           </div>
           
           <div v-else class="initial-state">
-            <div class="initial-icon">📚</div>
             <h4 class="initial-title">Skill Details</h4>
             <p class="initial-message">
               Select a category and skill to view detailed information.
@@ -343,7 +334,7 @@ onMounted(async () => {
 .back-button {
   background: none;
   border: none;
-  color: #4F4F4F; // 統一色に変更
+  color: #4F4F4F; // 統一色
   cursor: pointer;
   font-size: $font-size-sm;
   padding: $space-2 0;
@@ -378,7 +369,7 @@ onMounted(async () => {
   margin: 0 0 $space-2 0;
   font-size: $font-size-4xl;
   font-weight: $font-weight-bold;
-  color: $color-text;
+  color: #4F4F4F; // 統一色に変更
   
   @media (max-width: $breakpoint-md) {
     font-size: $font-size-3xl;
@@ -405,10 +396,11 @@ onMounted(async () => {
 .content-layout {
   display: grid;
   grid-template-columns: 292px 292px 584px;
-  grid-template-rows: auto auto; // 可変高さに変更
+  grid-template-rows: auto 1fr; // 2行目を1frから変更
   gap: $space-2; // 12px → 8px にもっと詰める
   width: fit-content;
   margin: 0 auto;
+  align-items: start; // アイテムを上揃えに
 }
 
 /* カラムヘッダー */
@@ -430,6 +422,7 @@ onMounted(async () => {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  /* 基本的な高さ設定を削除 */
 }
 
 .categories-card,
@@ -440,7 +433,8 @@ onMounted(async () => {
 
 .details-card {
   max-width: 584px;
-  min-height: 630px; // 最小高さ630px、可変
+  min-height: 230px; // 最小高さ230px
+  height: auto; // 可変サイズ
 }
 
 /* カテゴリーリスト */
@@ -449,12 +443,14 @@ onMounted(async () => {
   flex-direction: column;
   overflow-y: auto;
   height: 100%;
+  padding: $space-2; // 8pxパディング
+  gap: 2px; // アイテム間に2pxの隙間
 }
 
 .category-item {
   background: none;
   border: none;
-  padding: 0; // パディングをリセット
+  padding: 0 $space-3; // 内側のパディング
   text-align: left;
   cursor: pointer;
   color: #828282; // デフォルト文字色
@@ -462,10 +458,11 @@ onMounted(async () => {
   font-weight: $font-weight-normal;
   transition: $transition-colors;
   position: relative;
-  margin: 0 10px; // 左右10pxマージン
+  margin: 0; // マージンなし
   height: 32px; // 高さ32px
   display: flex;
   align-items: center;
+  flex-shrink: 0; // 縮小を防ぐ
   
   &:hover {
     color: #333333;
@@ -489,7 +486,7 @@ onMounted(async () => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  padding: 0 $space-3; // 内側のパディング
+  width: 100%;
 }
 
 /* スキルリスト */
@@ -498,12 +495,14 @@ onMounted(async () => {
   flex-direction: column;
   overflow-y: auto;
   height: 100%;
+  padding: $space-2; // 8pxパディング
+  gap: 2px; // アイテム間に2pxの隙間
 }
 
 .skill-item {
   background: none;
   border: none;
-  padding: 0; // パディングをリセット
+  padding: 0 $space-3; // 内側のパディング
   text-align: left;
   cursor: pointer;
   color: #828282; // デフォルト文字色
@@ -511,10 +510,11 @@ onMounted(async () => {
   font-weight: $font-weight-normal;
   transition: $transition-colors;
   position: relative;
-  margin: 0 10px; // 左右10pxマージン
+  margin: 0; // マージンなし
   height: 32px; // 高さ32px
   display: flex;
   align-items: center;
+  flex-shrink: 0; // 縮小を防ぐ
   
   &:hover {
     color: #333333;
@@ -538,97 +538,38 @@ onMounted(async () => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  padding: 0 $space-3; // 内側のパディング
+  width: 100%;
 }
 
 /* 詳細カード */
 .skill-details {
-  height: 100%;
+  height: auto; // 可変高さ
   display: flex;
   flex-direction: column;
-  padding: $space-4;
-  overflow-y: auto;
+  padding: 16px; // 16pxパディング
 }
 
-.skill-header {
-  margin-bottom: $space-4;
-  padding-bottom: $space-4;
-  border-bottom: $border-width solid $color-border-light;
-  flex-shrink: 0;
+.skill-breadcrumb {
+  font-size: 12px; // 12px
+  color: #4F4F4F;
+  margin: 0 0 32px 0; // 下に32pxマージン
+  text-align: left; // 左詰め
 }
 
 .skill-title {
-  margin: 0 0 $space-3 0;
-  font-size: $font-size-lg;
-  font-weight: $font-weight-semibold;
-  color: $color-text;
+  margin: 0 0 16px 0; // 下に16pxマージン
+  font-size: 24px; // 24px
+  font-weight: $font-weight-bold; // bold
+  color: #4F4F4F;
   line-height: $line-height-tight;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  text-align: left; // 左詰め
 }
 
-.skill-category {
-  display: flex;
-  align-items: center;
-  gap: $space-2;
-  font-size: $font-size-xs;
-}
-
-.category-label {
-  color: #4F4F4F; // 統一色
-  font-weight: $font-weight-medium;
-}
-
-.category-value {
-  color: $color-primary;
-  font-weight: $font-weight-medium;
-  background: $color-primary-light;
-  padding: 2px 6px;
+.skill-description-box {
+  background: #F3F6F7; // 選択中レクタングルと同じ色
   border-radius: $radius-sm;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 200px;
-}
-
-.skill-description-container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-.description-title {
-  margin: 0 0 $space-3 0;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
-  color: #4F4F4F; // 統一色
-  flex-shrink: 0;
-}
-
-.skill-description-scroll {
-  flex: 1;
-  overflow-y: auto;
-  padding-right: $space-2;
-  
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: $color-gray-100;
-    border-radius: 3px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: $color-gray-300;
-    border-radius: 3px;
-
-    &:hover {
-      background: $color-gray-400;
-    }
-  }
+  padding: 16px;
+  margin: 0 0 32px 0; // 下に32pxマージン
 }
 
 .skill-description {
@@ -763,7 +704,8 @@ onMounted(async () => {
   }
   
   .details-card {
-    min-height: 400px;
+    min-height: 230px; // 最小高さ230px
+    height: auto; // 可変サイズ
   }
   
   .title-section {
@@ -801,7 +743,8 @@ onMounted(async () => {
   }
   
   .details-card {
-    min-height: 300px;
+    min-height: 230px; // 最小高さ230px
+    height: auto; // 可変サイズ
   }
   
   .column-header {
@@ -810,8 +753,13 @@ onMounted(async () => {
   
   .category-item,
   .skill-item {
-    margin: 0 8px; // モバイルでは8pxマージン
-    height: 28px; // モバイルでは28px高さ
+    margin: 0; // モバイルでもマージンなし
+    height: 32px; // モバイルでも32px高さ
+  }
+  
+  .category-list,
+  .skills-list {
+    padding: $space-2; // モバイルでも8pxパディング
   }
 }
 
