@@ -253,7 +253,14 @@ function downloadCSV() {
 function parseCodesFromQuery(): string[] {
   const q = route.query.codes;
   if (!q) return [];
-  if (Array.isArray(q)) return q.flatMap(s => s.split(",")).filter(Boolean);
+  if (Array.isArray(q)) {
+    return q.flatMap((s) => {
+      if (typeof s === 'string') {
+        return s.split(",");
+      }
+      return [];
+    }).filter(Boolean);
+  }
   return String(q).split(",").filter(Boolean);
 }
 
