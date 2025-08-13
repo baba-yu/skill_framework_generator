@@ -27,118 +27,125 @@
         </BaseButton>
       </div>
 
-      <!-- 3カラムレイアウト -->
+      <!-- コンテンツレイアウト -->
       <div class="content-layout">
-        <!-- カテゴリーヘッダー -->
-        <div class="column-header">CATEGORIES</div>
-        <!-- スキルヘッダー -->
-        <div class="column-header">SKILLS</div>
-        <!-- 詳細ヘッダー -->
-        <div class="column-header">SKILL DETAILS</div>
-        
-        <!-- カテゴリーカード -->
-        <div class="content-card categories-card">
-          <div v-if="loading.loadingKeys.includes('preview')" class="loading-state">
-            <div class="loading">
-              <div class="loading-dots">
-                <span class="loading-dot"></span>
-                <span class="loading-dot"></span>
-                <span class="loading-dot"></span>
+        <!-- カテゴリーセクション -->
+        <div class="content-section">
+          <div class="column-header">CATEGORIES</div>
+          <div class="content-card categories-card">
+            <div v-if="loading.loadingKeys.includes('preview')" class="loading-state">
+              <div class="loading">
+                <div class="loading-dots">
+                  <span class="loading-dot"></span>
+                  <span class="loading-dot"></span>
+                  <span class="loading-dot"></span>
+                </div>
+                <span class="loading-text">Loading...</span>
               </div>
-              <span class="loading-text">Loading...</span>
             </div>
-          </div>
-          
-          <div v-else-if="error" class="error-state">
-            <p class="error-message">{{ error }}</p>
-          </div>
-          
-          <div v-else-if="availableCategories.length > 0" class="category-list">
-            <button
-              v-for="category in availableCategories"
-              :key="category"
-              class="category-item"
-              :class="{ active: selectedCategory === category }"
-              @click="selectCategory(category)"
-            >
-              <span class="category-name">{{ formatCategoryName(category) }}</span>
-            </button>
-          </div>
-          
-          <div v-else class="empty-state">
-            <p class="empty-message">No categories available</p>
-          </div>
-        </div>
-        
-        <!-- スキルカード -->
-        <div class="content-card skills-card">
-          <div v-if="selectedCategorySkills.length > 0" class="skills-list">
-            <button
-              v-for="skill in selectedCategorySkills"
-              :key="skill.name"
-              class="skill-item"
-              :class="{ active: selectedSkill?.name === skill.name }"
-              @click="selectSkill(skill)"
-            >
-              <span class="skill-name">{{ skill.name }}</span>
-            </button>
-          </div>
-          
-          <div v-else-if="selectedCategory && !loading.loadingKeys.includes('preview')" class="empty-state">
-            <p class="empty-message">No skills available in this category</p>
-          </div>
-          
-          <div v-else-if="!selectedCategory && !loading.loadingKeys.includes('preview')" class="no-selection-state">
-            <p class="no-selection-message">Select a category to view skills</p>
-          </div>
-          
-          <div v-else class="loading-state">
-            <div class="loading">
-              <div class="loading-dots">
-                <span class="loading-dot"></span>
-                <span class="loading-dot"></span>
-                <span class="loading-dot"></span>
-              </div>
+            
+            <div v-else-if="error" class="error-state">
+              <div class="error-icon">⚠️</div>
+              <h4 class="error-title">Error</h4>
+              <p class="error-message">{{ error }}</p>
+            </div>
+            
+            <div v-else-if="availableCategories.length === 0" class="empty-state">
+              <div class="empty-icon">📂</div>
+              <h4 class="empty-title">No Categories</h4>
+              <p class="empty-message">No skill categories available for the selected occupations.</p>
+            </div>
+            
+            <div v-else class="category-list">
+              <button
+                v-for="category in availableCategories"
+                :key="category"
+                :class="['category-item', { active: selectedCategory === category }]"
+                @click="selectCategory(category)"
+              >
+                <span class="category-name">{{ formatCategoryName(category) }}</span>
+              </button>
             </div>
           </div>
         </div>
+
+        <!-- スキルセクション -->
+        <div class="content-section">
+          <div class="column-header">SKILLS</div>
+          <div class="content-card skills-card">
+            <div v-if="selectedCategory && selectedCategorySkills.length > 0" class="skills-list">
+              <button
+                v-for="(skill, index) in selectedCategorySkills"
+                :key="`${skill.category}-${skill.name}-${index}`"
+                :class="['skill-item', { active: selectedSkill && selectedSkill.name === skill.name && selectedSkill.category === skill.category }]"
+                @click="selectSkill(skill)"
+              >
+                <span class="skill-name">{{ skill.name }}</span>
+              </button>
+            </div>
+            
+            <div v-else-if="selectedCategory && selectedCategorySkills.length === 0" class="empty-state">
+              <h4 class="empty-title">No Skills Available</h4>
+              <p class="empty-message">
+                There are no skills in the "{{ formatCategoryName(selectedCategory) }}" category.
+              </p>
+            </div>
+            
+            <div v-else-if="!selectedCategory && !loading.loadingKeys.includes('preview')" class="no-selection-state">
+              <p class="no-selection-message">Select a category to view skills</p>
+            </div>
+            
+            <div v-else class="loading-state">
+              <div class="loading">
+                <div class="loading-dots">
+                  <span class="loading-dot"></span>
+                  <span class="loading-dot"></span>
+                  <span class="loading-dot"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         
-        <!-- 詳細カード -->
-        <div class="content-card details-card">
-          <div v-if="selectedSkill" class="skill-details">
-            <!-- パンくずナビ -->
-            <div class="skill-breadcrumb">
-              {{ formatCategoryName(selectedSkill.category) }} > {{ selectedSkill.name }}
+        <!-- スキル詳細セクション -->
+        <div class="content-section">
+          <div class="column-header">SKILL DETAILS</div>
+          <div class="content-card details-card">
+            <div v-if="selectedSkill" class="skill-details">
+              <!-- パンくずナビ -->
+              <div class="skill-breadcrumb">
+                {{ formatCategoryName(selectedSkill.category) }} > {{ selectedSkill.name }}
+              </div>
+              
+              <!-- スキル名 -->
+              <h4 class="skill-title">{{ selectedSkill.name }}</h4>
+              
+              <!-- 説明ボックス -->
+              <div class="skill-description-box">
+                <p class="skill-description">{{ selectedSkill.description }}</p>
+              </div>
             </div>
             
-            <!-- スキル名 -->
-            <h4 class="skill-title">{{ selectedSkill.name }}</h4>
-            
-            <!-- 説明ボックス -->
-            <div class="skill-description-box">
-              <p class="skill-description">{{ selectedSkill.description }}</p>
+            <div v-else-if="selectedCategory && selectedCategorySkills.length === 0" class="empty-state">
+              <h4 class="empty-title">No Skills Available</h4>
+              <p class="empty-message">
+                There are no skills in the "{{ formatCategoryName(selectedCategory) }}" category.
+              </p>
             </div>
-          </div>
-          
-          <div v-else-if="selectedCategory && selectedCategorySkills.length === 0" class="empty-state">
-            <h4 class="empty-title">No Skills Available</h4>
-            <p class="empty-message">
-              There are no skills in the "{{ formatCategoryName(selectedCategory) }}" category.
-            </p>
-          </div>
-          
-          <div v-else-if="selectedCategory" class="no-selection-state">
-            <h4 class="no-selection-title">Select a Skill</h4>
-            <p class="no-selection-message">
-              Choose a skill from the list to view its details.
-            </p>
-          </div>
-          
-          <div v-else class="initial-state">
-            <h4 class="initial-title">Skill Details</h4>
-            <p class="initial-message">
-              Select a category and skill to view detailed information.
-            </p>
+            
+            <div v-else-if="selectedCategory" class="no-selection-state">
+              <h4 class="no-selection-title">Select a Skill</h4>
+              <p class="no-selection-message">
+                Choose a skill from the list to view its details.
+              </p>
+            </div>
+            
+            <div v-else class="initial-state">
+              <h4 class="initial-title">Skill Details</h4>
+              <p class="initial-message">
+                Select a category and skill to view detailed information.
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -183,20 +190,17 @@ const selectedCategorySkills = computed(() => {
 });
 
 const occupationNames = computed(() => {
-  // 選択されたコードに対応する職業タイトルを取得
   const searchResults = search.results;
   const selectedTitles = codes.value
     .map(code => {
       const occupation = searchResults.find(result => result.code === code);
       return occupation?.title;
     })
-    .filter(Boolean); // undefinedを除外
+    .filter(Boolean);
   
   if (selectedTitles.length > 0) {
-    // タイトルがある場合は、カンマ区切りで表示
     return selectedTitles.join(', ');
   } else {
-    // フォールバック: 件数表示
     const count = codes.value.length;
     return `${count} occupation${count !== 1 ? 's' : ''}`;
   }
@@ -207,12 +211,12 @@ const hasSkills = computed(() => skills.value.length > 0);
 // Methods
 function selectCategory(category: string) {
   selectedCategory.value = category;
-  // 最初のスキルを自動選択
-  const categorySkills = selectedCategorySkills.value;
+  selectedSkill.value = null; // まずリセット
+  
+  // カテゴリのスキルを取得して最初のスキルを自動選択
+  const categorySkills = skills.value.filter(s => s.category === category);
   if (categorySkills.length > 0) {
     selectedSkill.value = categorySkills[0];
-  } else {
-    selectedSkill.value = null;
   }
 }
 
@@ -236,86 +240,60 @@ function formatCategoryName(category: string): string {
   }
 }
 
-function downloadCSV() {
-  if (skills.value.length === 0) return;
-  
-  const headers = ['category', 'skill_name', 'description'];
-  const rows = skills.value.map(skill => [
-    skill.category,
-    skill.name,
-    skill.description
-  ]);
-  
-  downloadCsv('skills_framework.csv', headers, rows);
-}
-
-// クエリからコードを解析
-function parseCodesFromQuery(): string[] {
-  const q = route.query.codes;
-  if (!q) return [];
-  if (Array.isArray(q)) {
-    return q.flatMap((s) => {
-      if (typeof s === 'string') {
-        return s.split(",");
-      }
-      return [];
-    }).filter(Boolean);
-  }
-  return String(q).split(",").filter(Boolean);
-}
-
-// コードの確保
-async function ensureCodes() {
+async function loadSkills() {
   if (codes.value.length === 0) {
-    const fromQuery = parseCodesFromQuery();
-    if (fromQuery.length) {
-      selection.setSelectedCodes(fromQuery);
-    }
-  }
-}
-
-// プレビューの読み込み
-async function loadPreview(handoff = false) {
-  await ensureCodes();
-  
-  if (codes.value.length === 0) {
-    error.value = 'No selection. Please go back and select at least one code.';
     return;
   }
 
-  if (!handoff) loading.startLoading('preview');
+  loading.startLoading('preview');
   error.value = '';
-
+  
   try {
-    skills.value = await fetchFrameworkPreviewAll(codes.value);
+    const data = await fetchFrameworkPreviewAll(codes.value);
+    skills.value = data;
     
     // 最初のカテゴリーを自動選択
-    if (availableCategories.value.length > 0 && !selectedCategory.value) {
+    if (availableCategories.value.length > 0) {
       selectCategory(availableCategories.value[0]);
     }
-  } catch (e: any) {
-    error.value = 'Failed to load preview.';
-    console.error('Preview error:', e);
+  } catch (err) {
+    console.error('Failed to load skills:', err);
+    error.value = err instanceof Error ? err.message : 'Failed to load skills';
   } finally {
     loading.stopLoading('preview');
   }
 }
 
-// カテゴリー変更時のスキル自動選択
-watch(selectedCategorySkills, (newSkills) => {
-  if (newSkills.length > 0 && (!selectedSkill.value || !newSkills.includes(selectedSkill.value))) {
-    selectedSkill.value = newSkills[0];
-  } else if (newSkills.length === 0) {
-    selectedSkill.value = null;
+function downloadCSV() {
+  if (skills.value.length === 0) return;
+  
+  const csvData = skills.value.map(skill => ({
+    'Category': formatCategoryName(skill.category),
+    'Skill Name': skill.name,
+    'Description': skill.description
+  }));
+  
+  downloadCsv(csvData, 'skill-framework.csv');
+}
+
+// Lifecycle
+onMounted(() => {
+  const queryCodesParam = route.query.codes;
+  if (typeof queryCodesParam === 'string' && queryCodesParam) {
+    const queryCodes = queryCodesParam.split(',');
+    
+    if (queryCodes.length > 0) {
+      selection.setSelectedCodes(queryCodes);
+    }
   }
+  
+  loadSkills();
 });
 
-// Mount
-onMounted(async () => {
-  loading.startLoading('preview');
-  loading.stopLoading('nav');
-  await loadPreview(true);
-});
+// Watch for changes in selected codes
+watch(codes, () => {
+  loadSkills();
+}, { deep: true });
 </script>
 
 <style scoped lang="scss">
@@ -333,115 +311,90 @@ onMounted(async () => {
   }
 }
 
-/* ブレッドクラム */
 .breadcrumb {
-  margin-bottom: $space-4;
+  margin-bottom: $space-6;
 }
 
 .back-button {
   background: none;
   border: none;
-  color: #4F4F4F; // 統一色
+  color: $color-text-secondary;
   cursor: pointer;
   font-size: $font-size-sm;
-  padding: $space-2 0;
-  transition: $transition-colors;
+  padding: 0;
   
   &:hover {
+    color: $color-primary;
+  }
+}
+
+.title-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: $space-8;
+  padding-bottom: $space-6;
+  border-bottom: $border-width solid $color-border-light;
+  
+  h1 {
+    margin: 0 0 $space-2 0;
+    font-size: $font-size-4xl;
+    font-weight: $font-weight-bold;
     color: $color-text;
   }
   
-  &:focus-visible {
-    outline: 2px solid $color-primary;
-    outline-offset: 2px;
-    border-radius: $radius-sm;
+  .subtitle {
+    margin: 0;
+    color: $color-text-secondary;
+    font-size: $font-size-base;
+    line-height: $line-height-relaxed;
   }
 }
 
-/* タイトルセクション */
-.title-section {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: $space-6;
-  padding: $space-4 0;
-  gap: $space-4;
-}
-
-.title-content {
-  flex: 1;
-}
-
-.title-content h1 {
-  margin: 0 0 $space-2 0;
-  font-size: $font-size-4xl;
-  font-weight: $font-weight-bold;
-  color: #4F4F4F; // 統一色に変更
-  
-  @media (max-width: $breakpoint-md) {
-    font-size: $font-size-3xl;
-  }
-}
-
-.subtitle {
-  margin: 0;
-  color: $color-text-secondary;
-  font-size: $font-size-sm; // 14px
-  line-height: $line-height-relaxed;
-  
-  @media (max-width: $breakpoint-md) {
-    font-size: $font-size-xs; // モバイルでは12px
-  }
-}
-
-.download-button {
-  flex-shrink: 0;
-  white-space: nowrap;
-}
-
-/* コンテンツレイアウト */
+/* コンテンツレイアウト - デスクトップでは横並び、モバイルでは縦並び */
 .content-layout {
   display: grid;
   grid-template-columns: 292px 292px 584px;
-  grid-template-rows: auto 1fr; // 2行目を1frから変更
-  gap: $space-2; // 12px → 8px にもっと詰める
+  gap: $space-6;
   width: fit-content;
   margin: 0 auto;
-  align-items: start; // アイテムを上揃えに
+  align-items: start;
+}
+
+.content-section {
+  display: flex;
+  flex-direction: column;
 }
 
 /* カラムヘッダー */
 .column-header {
   font-size: $font-size-xs;
   font-weight: $font-weight-bold;
-  color: #4F4F4F; // 統一色
+  color: #4F4F4F;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  padding-bottom: 2px; // 4px → 2px にもっと詰める
-  align-self: end;
+  padding-bottom: $space-2;
+  margin-bottom: $space-2;
 }
 
 /* コンテンツカード */
 .content-card {
   background: $color-white;
-  border: $border-width solid $color-border; // 1px
+  border: $border-width solid $color-border;
   border-radius: $radius-lg;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  /* 基本的な高さ設定を削除 */
 }
 
 .categories-card,
 .skills-card {
-  max-width: 292px;
-  height: 630px; // 左2つは固定630px
+  height: 630px;
 }
 
 .details-card {
-  max-width: 584px;
-  min-height: 230px; // 最小高さ230px
-  height: auto; // 可変サイズ
+  min-height: 230px;
+  height: auto;
 }
 
 /* カテゴリーリスト */
@@ -450,36 +403,36 @@ onMounted(async () => {
   flex-direction: column;
   overflow-y: auto;
   height: 100%;
-  padding: $space-2; // 8pxパディング
-  gap: 2px; // アイテム間に2pxの隙間
+  padding: $space-2;
+  gap: 2px;
 }
 
 .category-item {
   background: none;
   border: none;
-  padding: 0 $space-3; // 内側のパディング
+  padding: 0 $space-3;
   text-align: left;
   cursor: pointer;
-  color: #828282; // デフォルト文字色
+  color: #828282;
   font-size: $font-size-sm;
   font-weight: $font-weight-normal;
   transition: $transition-colors;
   position: relative;
-  margin: 0; // マージンなし
-  height: 32px; // 高さ32px
+  margin: 0;
+  height: 32px;
   display: flex;
   align-items: center;
-  flex-shrink: 0; // 縮小を防ぐ
+  flex-shrink: 0;
   
   &:hover {
     color: #333333;
   }
   
   &.active {
-    background: #F3F6F7; // インナーレクタングル
-    color: #333333; // 選択時文字色
+    background: #F3F6F7;
+    color: #333333;
     font-weight: $font-weight-medium;
-    border-radius: $radius-sm; // 角丸
+    border-radius: $radius-sm;
   }
   
   &:focus-visible {
@@ -502,36 +455,36 @@ onMounted(async () => {
   flex-direction: column;
   overflow-y: auto;
   height: 100%;
-  padding: $space-2; // 8pxパディング
-  gap: 2px; // アイテム間に2pxの隙間
+  padding: $space-2;
+  gap: 2px;
 }
 
 .skill-item {
   background: none;
   border: none;
-  padding: 0 $space-3; // 内側のパディング
+  padding: 0 $space-3;
   text-align: left;
   cursor: pointer;
-  color: #828282; // デフォルト文字色
+  color: #828282;
   font-size: $font-size-sm;
   font-weight: $font-weight-normal;
   transition: $transition-colors;
   position: relative;
-  margin: 0; // マージンなし
-  height: 32px; // 高さ32px
+  margin: 0;
+  height: 32px;
   display: flex;
   align-items: center;
-  flex-shrink: 0; // 縮小を防ぐ
+  flex-shrink: 0;
   
   &:hover {
     color: #333333;
   }
   
   &.active {
-    background: #F3F6F7; // インナーレクタングル
-    color: #333333; // 選択時文字色
+    background: #F3F6F7;
+    color: #333333;
     font-weight: $font-weight-medium;
-    border-radius: $radius-sm; // 角丸
+    border-radius: $radius-sm;
   }
   
   &:focus-visible {
@@ -548,35 +501,32 @@ onMounted(async () => {
   width: 100%;
 }
 
-/* 詳細カード */
+/* スキル詳細 */
 .skill-details {
-  height: auto; // 可変高さ
-  display: flex;
-  flex-direction: column;
-  padding: 16px; // 16pxパディング
+  padding: $space-5;
+  height: 100%;
+  overflow-y: auto;
 }
 
 .skill-breadcrumb {
-  font-size: 12px; // 12px
-  color: #4F4F4F;
-  margin: 0 0 32px 0; // 下に32pxマージン
-  text-align: left; // 左詰め
+  font-size: $font-size-xs;
+  color: #828282;
+  margin-bottom: $space-4;
 }
 
 .skill-title {
-  margin: 0 0 16px 0; // 下に16pxマージン
-  font-size: 24px; // 24px
-  font-weight: $font-weight-bold; // bold
-  color: #4F4F4F;
+  margin: 0 0 $space-4 0;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  color: $color-text;
   line-height: $line-height-tight;
-  text-align: left; // 左詰め
 }
 
 .skill-description-box {
-  background: #F3F6F7; // 選択中レクタングルと同じ色
-  border-radius: $radius-sm;
-  padding: 16px;
-  margin: 0 0 32px 0; // 下に32pxマージン
+  background: #F8F9FA;
+  border: 1px solid #E9ECEF;
+  border-radius: $radius-md;
+  padding: $space-4;
 }
 
 .skill-description {
@@ -584,7 +534,6 @@ onMounted(async () => {
   color: $color-text;
   line-height: $line-height-relaxed;
   font-size: $font-size-sm;
-  word-break: break-word;
 }
 
 /* 状態表示 */
@@ -599,46 +548,26 @@ onMounted(async () => {
   justify-content: center;
   text-align: center;
   height: 100%;
-  padding: $space-4;
-}
-
-.loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: $space-3;
-  color: #4F4F4F; // 統一色
+  padding: $space-8;
+  color: #4F4F4F;
 }
 
 .loading-dots {
   display: flex;
-  gap: $space-1;
+  gap: 4px;
+  margin-bottom: $space-2;
 }
 
 .loading-dot {
-  width: 6px;
-  height: 6px;
-  background: currentColor;
+  width: 8px;
+  height: 8px;
+  background: $color-primary;
   border-radius: 50%;
   animation: loadingDot 1.4s infinite ease-in-out;
-
-  &:nth-child(1) { animation-delay: -0.32s; }
-  &:nth-child(2) { animation-delay: -0.16s; }
-  &:nth-child(3) { animation-delay: 0s; }
-}
-
-@keyframes loadingDot {
-  0%, 80%, 100% {
-    transform: scale(0.8);
-    opacity: 0.5;
-  }
-  40% {
-    transform: scale(1.2);
-    opacity: 1;
-  }
 }
 
 .loading-text {
+  color: #4F4F4F;
   font-size: $font-size-xs;
   font-weight: $font-weight-medium;
 }
@@ -656,7 +585,7 @@ onMounted(async () => {
 .no-selection-message,
 .initial-message {
   margin: 0;
-  color: #4F4F4F; // 統一色
+  color: #4F4F4F;
   font-size: $font-size-xs;
   line-height: $line-height-relaxed;
 }
@@ -667,12 +596,13 @@ onMounted(async () => {
   margin: 0 0 $space-2 0;
   font-size: $font-size-sm;
   font-weight: $font-weight-semibold;
-  color: #4F4F4F; // 統一色
+  color: #4F4F4F;
 }
 
 /* カスタムスクロールバー */
 .category-list,
-.skills-list {
+.skills-list,
+.skill-details {
   &::-webkit-scrollbar {
     width: 6px;
   }
@@ -691,17 +621,27 @@ onMounted(async () => {
   }
 }
 
-/* レスポンシブ対応 */
+/* アニメーション */
+@keyframes loadingDot {
+  0%, 80%, 100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
+}
+
+/* レスポンシブ対応 - モバイルでは縦並び */
 @media (max-width: $breakpoint-lg) {
   .content-layout {
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto auto;
-    gap: $space-2;
+    grid-template-rows: auto auto auto;
+    gap: $space-4;
     width: 100%;
+    margin: 0;
   }
   
   .content-card {
-    height: 400px;
     max-width: 100%;
   }
   
@@ -711,8 +651,8 @@ onMounted(async () => {
   }
   
   .details-card {
-    min-height: 230px; // 最小高さ230px
-    height: auto; // 可変サイズ
+    min-height: 300px;
+    height: auto;
   }
   
   .title-section {
@@ -737,11 +677,11 @@ onMounted(async () => {
   }
   
   .content-layout {
-    gap: $space-1;
+    gap: $space-3;
   }
   
   .content-card {
-    height: 300px;
+    min-height: 250px;
   }
   
   .categories-card,
@@ -750,8 +690,7 @@ onMounted(async () => {
   }
   
   .details-card {
-    min-height: 230px; // 最小高さ230px
-    height: auto; // 可変サイズ
+    min-height: 250px;
   }
   
   .column-header {
@@ -760,18 +699,12 @@ onMounted(async () => {
   
   .category-item,
   .skill-item {
-    margin: 0; // モバイルでもマージンなし
-    height: 32px; // モバイルでも32px高さ
+    height: 32px;
   }
   
   .category-list,
   .skills-list {
-    padding: $space-2; // モバイルでも8pxパディング
+    padding: $space-2;
   }
-}
-
-/* ダークモード対応の準備 */
-@media (prefers-color-scheme: dark) {
-  // 将来のダークモード実装用
 }
 </style>
