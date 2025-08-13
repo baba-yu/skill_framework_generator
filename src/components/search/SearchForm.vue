@@ -78,7 +78,7 @@
           :disabled="selectedCount === 0"
           @click="$emit('review')"
         >
-          Review your framework ({{ selectedCount }})
+          Build your framework ({{ selectedCount }})
         </BaseButton>
         
         <BaseButton 
