@@ -3,7 +3,7 @@
     <div class="search-row">
       <!-- 検索入力エリア -->
       <div class="search-input-section">
-        <div class="search-input-container">
+        <div class="search-input-container" :class="{ 'suggestions-open': showSuggestions }">
           <div class="input-area" @click="focusInput">
             <!-- 既存のタグ表示 -->
             <span 
@@ -26,6 +26,9 @@
               @keydown.enter="handleEnter"
               @keydown.comma.prevent="addTagFromInput"
               @keydown.backspace="handleBackspace"
+              @input="handleInput"
+              @focus="handleFocus"
+              @blur="handleBlur"
             />
           </div>
 
@@ -64,30 +67,32 @@
               </div>
             </button>
           </div>
+
+          <!-- 予測変換ドロップダウン -->
+          <KeywordSuggestions
+            :visible="showSuggestions"
+            :query="searchInput"
+            :suggestions="currentSuggestions"
+            @select="selectSuggestion"
+            @close="hideSuggestions"
+          />
         </div>
       </div>
 
       <!-- スペーサー -->
       <div class="spacer"></div>
 
-      <!-- アクションボタン - BaseButtonを使用 -->
+      <!-- アクションボタン -->
       <div class="action-buttons">
+        <!-- プレビュー選択ボタン -->
         <BaseButton 
           variant="primary"
           size="md"
           :disabled="selectedCount === 0"
-          @click="$emit('review')"
+          @click="$emit('openSidebar')"
+          class="preview-button"
         >
-          Build your framework ({{ selectedCount }})
-        </BaseButton>
-        
-        <BaseButton 
-          variant="danger"
-          size="md"
-          :disabled="selectedCount === 0"
-          @click="$emit('clear')"
-        >
-          Clear all
+          Preview selection{{ selectedCount > 1 ? 's' : '' }} ({{ selectedCount }})
         </BaseButton>
       </div>
     </div>
@@ -97,7 +102,9 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue';
 import { useSearchStore } from '@/store/search';
+import { useKeywordSuggestions } from '@/composables/useKeywordSuggestions';
 import BaseButton from '@/components/base/BaseButton.vue';
+import KeywordSuggestions from '@/components/search/KeywordSuggestions.vue';
 
 // Props
 interface Props {
@@ -112,19 +119,21 @@ const props = withDefaults(defineProps<Props>(), {
 // Emits
 interface Emits {
   (e: 'search', keywords: string[]): void;
-  (e: 'review'): void;
-  (e: 'clear'): void;
+  (e: 'openSidebar'): void;
 }
 
 const emit = defineEmits<Emits>();
 
-// Store
+// Store & Composables
 const searchStore = useSearchStore();
+const { loadKeywords, getSuggestions } = useKeywordSuggestions();
 
 // State
 const searchTags = ref<string[]>([]);
 const searchInput = ref('');
 const inputRef = ref<HTMLInputElement | null>(null);
+const showSuggestions = ref(false);
+const currentSuggestions = ref<string[]>([]);
 
 // Computed
 const canSearch = computed(() => 
@@ -141,6 +150,7 @@ function addTagFromInput() {
   if (trimmed && !searchTags.value.includes(trimmed) && searchTags.value.length < 3) {
     searchTags.value.push(trimmed);
     searchInput.value = '';
+    hideSuggestions();
     // ストアにも保存
     searchStore.setKeywords([...searchTags.value]);
   }
@@ -156,6 +166,7 @@ function clearAllTags() {
   searchTags.value = [];
   searchInput.value = '';
   searchStore.setKeywords([]);
+  hideSuggestions();
   focusInput();
 }
 
@@ -174,6 +185,43 @@ function handleBackspace() {
   }
 }
 
+function handleInput() {
+  updateSuggestions();
+}
+
+function handleFocus() {
+  updateSuggestions();
+}
+
+function handleBlur() {
+  // 少し遅延させてクリックイベントを処理できるようにする
+  setTimeout(() => {
+    hideSuggestions();
+  }, 150);
+}
+
+function updateSuggestions() {
+  const query = searchInput.value.trim();
+  if (query.length >= 2 && searchTags.value.length < 3) {
+    currentSuggestions.value = getSuggestions(query, 8);
+    showSuggestions.value = currentSuggestions.value.length > 0;
+  } else {
+    hideSuggestions();
+  }
+}
+
+function selectSuggestion(suggestion: string) {
+  searchInput.value = suggestion;
+  addTagFromInput();
+  hideSuggestions();
+  focusInput();
+}
+
+function hideSuggestions() {
+  showSuggestions.value = false;
+  currentSuggestions.value = [];
+}
+
 function executeSearch() {
   // 入力フィールドからもタグを追加
   if (searchInput.value.trim()) {
@@ -182,6 +230,7 @@ function executeSearch() {
   
   if (searchTags.value.length === 0) return;
   
+  hideSuggestions();
   emit('search', [...searchTags.value]);
 }
 
@@ -192,7 +241,11 @@ function clearTags() {
 }
 
 // ストアからキーワードを復元
-onMounted(() => {
+onMounted(async () => {
+  // 辞書を読み込み
+  await loadKeywords();
+  
+  // 既存のキーワードを復元
   if (searchStore.keywords.length > 0) {
     searchTags.value = [...searchStore.keywords];
   }
@@ -242,6 +295,7 @@ defineExpose({
   height: 36px;
   box-shadow: $shadow-md;
   transition: $transition-colors, $transition-shadow;
+  position: relative; // 予測変換のため
   
   &:focus-within {
     border: none !important;
@@ -251,6 +305,11 @@ defineExpose({
   &:hover:not(:focus-within) {
     border: none !important;
     box-shadow: $shadow-lg;
+  }
+
+  &.suggestions-open {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
   }
 }
 
@@ -394,8 +453,8 @@ defineExpose({
   display: inline-flex;
   align-items: center;
   gap: $space-1;
-  padding: 4px 8px;
-  height: 21px;
+  padding: 6px 10px; // 間隔を広げる例
+  height: 25px; // 高さも調整が必要かも
   font-size: $font-size-sm;
   font-weight: $font-weight-normal;
   flex-shrink: 0;
@@ -448,6 +507,10 @@ defineExpose({
   flex: 0 0 auto;
 }
 
+.preview-button {
+  white-space: nowrap;
+}
+
 /* レスポンシブ対応 */
 @media (max-width: $breakpoint-lg) {
   .search-row {
@@ -465,10 +528,6 @@ defineExpose({
   
   .action-buttons {
     align-self: stretch;
-    
-    > :deep(button) {
-      flex: 1;
-    }
   }
 }
 

@@ -8,6 +8,7 @@
         @search="handleSearch"
         @review="goToPreview"
         @clear="clearAll"
+        @open-sidebar="openSidebar"
       />
 
       <!-- 検索結果 -->
@@ -17,6 +18,17 @@
         :is-loading="loading.loadingKeys.includes('search')"
         :has-searched="hasSearched"
         @toggle="toggleSelection"
+      />
+
+      <!-- フレームワークサイドバー -->
+      <FrameworkSidebar
+        :visible="showSidebar"
+        :selected-codes="selection.selectedCodes"
+        :occupations="search.results"
+        @close="closeSidebar"
+        @remove="removeSelection"
+        @review="goToPreview"
+        @clear="clearAll"
       />
     </div>
   </BaseLayout>
@@ -32,6 +44,7 @@ import { useLoadingStore } from '@/store/loading';
 import BaseLayout from '@/components/base/BaseLayout.vue';
 import SearchForm from '@/components/search/SearchForm.vue';
 import OccupationList from '@/components/search/OccupationList.vue';
+import FrameworkSidebar from '@/components/FrameworkSidebar.vue';
 
 // Router and Stores
 const router = useRouter();
@@ -41,6 +54,7 @@ const loading = useLoadingStore();
 
 // State
 const hasSearched = ref(false);
+const showSidebar = ref(false);
 
 // Methods
 async function handleSearch(keywords: string[]) {
@@ -65,18 +79,32 @@ function toggleSelection(code: string) {
   selection.toggleSelection(code);
 }
 
+function removeSelection(code: string) {
+  selection.toggleSelection(code); // toggleSelectionで削除
+}
+
 function clearAll() {
   selection.clearSelection();
+  closeSidebar(); // サイドバーも閉じる
 }
 
 function goToPreview() {
   if (selection.selectedCodes.length === 0) return;
   
   loading.startLoading('nav');
+  closeSidebar(); // プレビューに移動時はサイドバーを閉じる
   router.push({
     path: '/preview',
     query: { codes: selection.selectedCodes.join(',') }
   });
+}
+
+function openSidebar() {
+  showSidebar.value = true;
+}
+
+function closeSidebar() {
+  showSidebar.value = false;
 }
 </script>
 

@@ -41,7 +41,7 @@
       </div>
       <h3 class="initial-title">Search for occupation-based skill frameworks</h3>
       <p class="initial-description">
-        Enter keywords to find relevant occupations and add them to your skill framework.
+        Enter keywords related to find relevant occupations and add them to your skill framework.
       </p>
     </div>
   </div>
