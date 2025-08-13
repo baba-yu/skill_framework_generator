@@ -23,9 +23,7 @@
               :placeholder="searchTags.length === 0 ? 'Enter keyword(s) of occupation' : ''"
               class="tag-input"
               :disabled="isSearching"
-              @keydown.enter="handleEnter"
-              @keydown.comma.prevent="addTagFromInput"
-              @keydown.backspace="handleBackspace"
+              @keydown="handleKeydown"
               @input="handleInput"
               @focus="handleFocus"
               @blur="handleBlur"
@@ -134,6 +132,8 @@ const searchInput = ref('');
 const inputRef = ref<HTMLInputElement | null>(null);
 const showSuggestions = ref(false);
 const currentSuggestions = ref<string[]>([]);
+const enterPressCount = ref(0);
+const enterTimeout = ref<NodeJS.Timeout | null>(null);
 
 // Computed
 const canSearch = computed(() => 
@@ -170,12 +170,72 @@ function clearAllTags() {
   focusInput();
 }
 
-function handleEnter() {
-  // Enterキーは入力中のテキストをタグに変換するのみ
-  if (searchInput.value.trim()) {
-    addTagFromInput();
+// 統一されたキーボードイベント処理
+function handleKeydown(event: KeyboardEvent) {
+  switch (event.key) {
+    case 'Enter':
+      // 予測選択が表示されている場合の処理
+      if (showSuggestions.value && currentSuggestions.value.length > 0) {
+        // エンター回数をカウント
+        enterPressCount.value++
+        
+        // タイムアウトをクリア
+        if (enterTimeout.value) {
+          clearTimeout(enterTimeout.value)
+        }
+        
+        if (enterPressCount.value === 1) {
+          // 1回目のエンター: 予測選択コンポーネントに処理を委ねる
+          // 500ms後にカウントをリセット
+          enterTimeout.value = setTimeout(() => {
+            enterPressCount.value = 0
+          }, 500)
+          return
+        } else if (enterPressCount.value >= 2) {
+          // 2回目のエンター: 自由入力でタグ追加
+          event.preventDefault()
+          enterPressCount.value = 0
+          if (enterTimeout.value) {
+            clearTimeout(enterTimeout.value)
+          }
+          if (searchInput.value.trim()) {
+            addTagFromInput()
+          }
+          return
+        }
+      } else {
+        // 予測選択が表示されていない場合は通常通りタグ追加
+        event.preventDefault()
+        if (searchInput.value.trim()) {
+          addTagFromInput()
+        }
+      }
+      break
+      
+    case 'ArrowDown':
+    case 'ArrowUp':
+      // 予測選択が表示されている場合は処理しない（予測選択コンポーネントに委ねる）
+      if (showSuggestions.value && currentSuggestions.value.length > 0) {
+        return
+      }
+      break
+      
+    case ',':
+      event.preventDefault()
+      addTagFromInput()
+      break
+      
+    case 'Backspace':
+      handleBackspace()
+      break
+      
+    case 'Escape':
+      if (showSuggestions.value) {
+        hideSuggestions()
+        event.preventDefault()
+      }
+      break
   }
-  // 検索は実行しない
 }
 
 function handleBackspace() {
@@ -211,6 +271,12 @@ function updateSuggestions() {
 }
 
 function selectSuggestion(suggestion: string) {
+  // 予測選択時はエンターカウントをリセット
+  enterPressCount.value = 0
+  if (enterTimeout.value) {
+    clearTimeout(enterTimeout.value)
+  }
+  
   searchInput.value = suggestion;
   addTagFromInput();
   hideSuggestions();
@@ -220,6 +286,11 @@ function selectSuggestion(suggestion: string) {
 function hideSuggestions() {
   showSuggestions.value = false;
   currentSuggestions.value = [];
+  // 予測選択が閉じたらエンターカウントもリセット
+  enterPressCount.value = 0
+  if (enterTimeout.value) {
+    clearTimeout(enterTimeout.value)
+  }
 }
 
 function executeSearch() {
@@ -453,8 +524,8 @@ defineExpose({
   display: inline-flex;
   align-items: center;
   gap: $space-1;
-  padding: 6px 10px; // 間隔を広げる例
-  height: 25px; // 高さも調整が必要かも
+  padding: 6px 10px;
+  height: 25px;
   font-size: $font-size-sm;
   font-weight: $font-weight-normal;
   flex-shrink: 0;
