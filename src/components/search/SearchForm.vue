@@ -22,7 +22,7 @@
               type="text"
               :placeholder="searchTags.length === 0 ? 'Enter keyword(s) of occupation' : ''"
               class="tag-input"
-              :disabled="isSearching"
+              :disabled="isSearching || isTagLimitReached"
               @keydown="handleKeydown"
               @input="handleInput"
               @focus="handleFocus"
@@ -74,6 +74,11 @@
             @select="selectSuggestion"
             @close="hideSuggestions"
           />
+        </div>
+        
+        <!-- タグ制限警告 -->
+        <div v-if="shouldShowTagWarning" class="tag-warning">
+          <span class="warning-text">Up to 5 words.</span>
         </div>
       </div>
 
@@ -140,6 +145,9 @@ const canSearch = computed(() =>
   searchTags.value.length > 0 || searchInput.value.trim().length > 0
 );
 
+const isTagLimitReached = computed(() => searchTags.value.length >= 5);
+const shouldShowTagWarning = computed(() => searchTags.value.length >= 4);
+
 // Methods
 function focusInput() {
   inputRef.value?.focus();
@@ -147,7 +155,7 @@ function focusInput() {
 
 function addTagFromInput() {
   const trimmed = searchInput.value.trim();
-  if (trimmed && !searchTags.value.includes(trimmed) && searchTags.value.length < 3) {
+  if (trimmed && !searchTags.value.includes(trimmed) && searchTags.value.length < 5) {
     searchTags.value.push(trimmed);
     searchInput.value = '';
     hideSuggestions();
@@ -262,7 +270,9 @@ function handleBlur() {
 
 function updateSuggestions() {
   const query = searchInput.value.trim();
-  if (query.length >= 2 && searchTags.value.length < 3) {
+  const tagCount = searchTags.value.length;
+  
+  if (query.length >= 2 && tagCount < 5) {
     currentSuggestions.value = getSuggestions(query, 8);
     showSuggestions.value = currentSuggestions.value.length > 0;
   } else {
@@ -580,6 +590,15 @@ defineExpose({
 
 .preview-button {
   white-space: nowrap;
+}
+
+/* タグ制限警告 */
+.tag-warning {
+  margin-top: $space-2;
+  padding: $space-1 $space-2;
+  font-size: $font-size-xs;
+  color: #dc3545; // danger color
+  font-weight: $font-weight-medium;
 }
 
 /* レスポンシブ対応 */

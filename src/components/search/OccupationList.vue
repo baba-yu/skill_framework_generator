@@ -19,6 +19,7 @@
         :key="occupation.code"
         :occupation="occupation"
         :is-selected="isSelected(occupation.code)"
+        :selected-count="selectedCodes.length"
         @toggle="$emit('toggle', occupation.code)"
       />
     </div>

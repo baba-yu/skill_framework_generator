@@ -190,17 +190,14 @@ const selectedCategorySkills = computed(() => {
 });
 
 const occupationNames = computed(() => {
-  const searchResults = search.results;
-  const selectedTitles = codes.value
-    .map(code => {
-      const occupation = searchResults.find(result => result.code === code);
-      return occupation?.title;
-    })
-    .filter(Boolean);
+  // 新しいアプローチ：選択ストアから直接取得
+  const selectedOccupations = selection.allSelectedOccupations;
   
-  if (selectedTitles.length > 0) {
-    return selectedTitles.join(', ');
+  if (selectedOccupations.length > 0) {
+    // 選択ストアから職業タイトルを取得
+    return selectedOccupations.map(occ => occ.title).join(', ');
   } else {
+    // フォールバック: 件数表示
     const count = codes.value.length;
     return `${count} occupation${count !== 1 ? 's' : ''}`;
   }
