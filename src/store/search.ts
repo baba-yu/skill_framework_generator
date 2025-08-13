@@ -1,18 +1,16 @@
-// src/store/search.ts
 import { defineStore } from "pinia";
 import type { Occupation } from "@/api/occupations";
 
-const storage =
-  typeof window !== "undefined" ? window.sessionStorage : undefined;
+const storage = typeof window !== "undefined" ? window.sessionStorage : undefined;
 
 export const useSearchStore = defineStore("search", {
   state: () => ({
-    keywords: [] as string[],          // キーワードタグを永続化
-    results: [] as Occupation[],       // 検索結果も保持
+    keywords: [] as string[],
+    results: [] as Occupation[],
   }),
   actions: {
     setKeywords(k: string[]) { 
-      this.keywords = k.slice(0, 3); // 最大3つまで
+      this.keywords = k.slice(0, 3);
     },
     addKeyword(keyword: string) {
       const trimmed = keyword.trim();
@@ -39,6 +37,5 @@ export const useSearchStore = defineStore("search", {
   persist: {
     key: "search-cache",
     storage,
-    paths: ["keywords", "results"],    // キーワードと結果を永続化
   },
 });
