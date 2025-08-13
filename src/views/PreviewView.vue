@@ -16,13 +16,15 @@
             Includes the skills for the following occupation(s): {{ occupationNames }}
           </p>
         </div>
-        <button 
-          class="btn btn-primary btn-lg download-button" 
-          @click="downloadCSV" 
+        <BaseButton 
+          variant="primary"
+          size="lg"
           :disabled="!hasSkills"
+          @click="downloadCSV"
+          class="download-button"
         >
           Download
-        </button>
+        </BaseButton>
       </div>
 
       <!-- 3カラムレイアウト -->
@@ -65,6 +67,7 @@ import { useLoadingStore } from '@/store/loading';
 import { fetchFrameworkPreviewAll, type SkillItem } from '@/api/preview';
 import { downloadCsv } from '@/utils/csv';
 import BaseLayout from '@/components/base/BaseLayout.vue';
+import BaseButton from '@/components/base/BaseButton.vue';
 import SkillCategories from '@/components/preview/SkillCategories.vue';
 import SkillList from '@/components/preview/SkillList.vue';
 import SkillDetail from '@/components/preview/SkillDetail.vue';

@@ -71,22 +71,26 @@
       <!-- スペーサー -->
       <div class="spacer"></div>
 
-      <!-- アクションボタン -->
+      <!-- アクションボタン - BaseButtonを使用 -->
       <div class="action-buttons">
-        <button 
-          class="btn btn-primary btn-md review-btn"
+        <BaseButton 
+          variant="primary"
+          size="md"
           :disabled="selectedCount === 0"
           @click="$emit('review')"
         >
           Review your framework ({{ selectedCount }})
-        </button>
-        <button 
-          class="btn btn-outline btn-md clear-btn"
+        </BaseButton>
+        
+        <BaseButton 
+          variant="danger"
+          size="md"
           :disabled="selectedCount === 0"
           @click="$emit('clear')"
+          class="clear-btn"
         >
           Clear all
-        </button>
+        </BaseButton>
       </div>
     </div>
   </div>
@@ -94,6 +98,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import BaseButton from '@/components/base/BaseButton.vue';
 
 // Props
 interface Props {
@@ -215,7 +220,7 @@ defineExpose({
 .search-input-container {
   display: flex;
   align-items: center;
-  border: none !important; // !importantを追加
+  border: none !important;
   border-radius: $radius-lg;
   background: $color-white;
   padding: $space-2 $space-3;
@@ -226,12 +231,12 @@ defineExpose({
   transition: $transition-colors, $transition-shadow;
   
   &:focus-within {
-    border: none !important; // ここにも追加
+    border: none !important;
     box-shadow: $shadow-lg;
   }
 
   &:hover:not(:focus-within) {
-    border: none !important; // ここにも追加
+    border: none !important;
     box-shadow: $shadow-lg;
   }
 }
@@ -240,15 +245,14 @@ defineExpose({
   display: flex;
   align-items: center;
   gap: $space-2;
-  flex-wrap: nowrap; // wrapを無効にして横一列に
+  flex-wrap: nowrap;
   flex: 1;
   min-height: 32px;
   cursor: text;
-  overflow-x: auto; // 横スクロールを有効にする
+  overflow-x: auto;
   
-  // カスタムスクロールバー（オプション）
   &::-webkit-scrollbar {
-    height: 4px; // 横スクロールバーの高さ
+    height: 4px;
   }
 
   &::-webkit-scrollbar-track {
@@ -264,6 +268,7 @@ defineExpose({
     }
   }
 }
+
 .tag-input {
   border: none;
   outline: none;
@@ -286,18 +291,18 @@ defineExpose({
 
 .search-button {
   flex-shrink: 0;
-  width: 32px !important; // 幅を32pxに固定
-  height: 32px !important; // 高さを32pxに固定
+  width: 32px !important;
+  height: 32px !important;
   min-width: 32px;
   max-width: 32px;
   min-height: 32px;
   max-height: 32px;
   background: none !important;
   border: none !important;
-  padding: 0; // パディングを削除
+  padding: 0;
   
   svg {
-    width: 16px; // SVGサイズも調整
+    width: 16px;
     height: 16px;
     circle, path {
       stroke: #828282;
@@ -306,8 +311,8 @@ defineExpose({
   
   &:hover {
     background: rgba(130, 130, 130, 0.1) !important;
-    transform: none !important; // ホバー時の拡大を無効化
-    box-shadow: none !important; // シャドウも無効化
+    transform: none !important;
+    box-shadow: none !important;
   }
   
   &:disabled {
@@ -344,14 +349,14 @@ defineExpose({
   justify-content: center;
   width: 32px;
   height: 32px;
-  background: none; // 背景色なし
+  background: none;
   border: none;
   border-radius: $radius-md;
   cursor: pointer;
   transition: $transition-colors;
   
   &:hover {
-    background: rgba(130, 130, 130, 0.1); // ホバー時のみ薄い背景
+    background: rgba(130, 130, 130, 0.1);
   }
   
   &:focus-visible {
@@ -359,7 +364,6 @@ defineExpose({
     outline-offset: 2px;
   }
 }
-
 
 @keyframes loadingDot {
   0%, 80%, 100% {
@@ -382,9 +386,9 @@ defineExpose({
   font-size: $font-size-sm;
   font-weight: $font-weight-normal;
   flex-shrink: 0;
-  background: #828282; // 指定された色
+  background: #828282;
   color: $color-white;
-  border-radius: $radius-md; // 角を丸めたレクタングル
+  border-radius: $radius-md;
   white-space: nowrap;
   animation: tagAppear 0.2s ease;
 }
@@ -431,12 +435,8 @@ defineExpose({
   flex: 0 0 auto;
 }
 
-.review-btn {
-  white-space: nowrap;
-}
-
+/* Clear ボタンのスタイル調整 */
 .clear-btn {
-  white-space: nowrap;
   border-color: $color-error;
   color: $color-error;
 
@@ -457,16 +457,14 @@ defineExpose({
     flex: 1 1 auto;
   }
   
-  
-.spacer {
+  .spacer {
     display: none;
   }
   
   .action-buttons {
     align-self: stretch;
     
-    .review-btn,
-    .clear-btn {
+    > :deep(button) {
       flex: 1;
     }
   }
