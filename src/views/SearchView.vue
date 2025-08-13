@@ -76,11 +76,28 @@ async function handleSearch(keywords: string[]) {
 }
 
 function toggleSelection(code: string) {
+  // 10個制限チェック
+  const isSelected = selection.selectedCodes.includes(code);
+  
+  if (!isSelected && selection.selectedCodes.length >= 10) {
+    // 既に10個選択済みで新規追加の場合は何もしない
+    return;
+  }
+  
+  // 選択時：職業情報をストアに保存してからトグル
+  if (!isSelected) {
+    const occupation = search.results.find(occ => occ.code === code);
+    if (occupation) {
+      selection.addOccupation(occupation);
+    }
+  }
+  
   selection.toggleSelection(code);
 }
 
 function removeSelection(code: string) {
-  selection.toggleSelection(code); // toggleSelectionで削除
+  // removeOccupationを使用（toggleSelectionと同じ処理だが明示的）
+  selection.removeOccupation(code);
 }
 
 function clearAll() {

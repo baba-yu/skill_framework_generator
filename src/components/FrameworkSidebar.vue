@@ -58,6 +58,11 @@
                 ×
               </button>
             </div>
+            
+            <!-- フレームワーク制限警告 -->
+            <div v-if="shouldShowFrameworkWarning" class="framework-warning">
+              <span class="warning-text">Up to 10 occupations.</span>
+            </div>
           </div>
 
           <!-- 空状態 -->
@@ -97,6 +102,7 @@
 import { computed } from 'vue';
 import type { Occupation } from '@/api/occupations';
 import BaseButton from '@/components/base/BaseButton.vue';
+import { useSelectionStore } from '@/store/selection';
 
 // Props
 interface Props {
@@ -106,6 +112,9 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+// Store
+const selection = useSelectionStore();
 
 // Emits
 interface Emits {
@@ -119,10 +128,11 @@ const emit = defineEmits<Emits>();
 
 // Computed
 const selectedOccupations = computed(() => {
-  return props.selectedCodes
-    .map(code => props.occupations.find(occ => occ.code === code))
-    .filter(Boolean) as Occupation[];
+  // 新しいアプローチ：ストアから直接取得
+  return selection.allSelectedOccupations;
 });
+
+const shouldShowFrameworkWarning = computed(() => selectedOccupations.value.length >= 9);
 
 // Methods
 function removeOccupation(code: string) {
@@ -281,6 +291,16 @@ function removeOccupation(code: string) {
     outline: none;
     background: rgba(255, 255, 255, 0.4);
   }
+}
+
+/* フレームワーク制限警告 */
+.framework-warning {
+  margin-top: $space-2;
+  padding: $space-2 $space-3;
+  font-size: $font-size-xs;
+  color: #dc3545; // danger color
+  font-weight: $font-weight-medium;
+  text-align: center;
 }
 
 /* 空状態 */
