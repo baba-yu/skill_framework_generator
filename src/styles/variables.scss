@@ -4,8 +4,8 @@
 
 /* Colors */
 // Primary
-$color-primary: #1a73e8;
-$color-primary-hover: #1558b6;
+$color-primary: #232ED1;  // 新しいプライマリ色
+$color-primary-hover: #1e28b8;  // ホバー時の色（少し暗く）
 $color-primary-light: #eff6ff;
 $color-primary-dark: #1055a0;
 
@@ -25,7 +25,7 @@ $color-gray-900: #111827;
 // Semantic Colors
 $color-success: #059669;
 $color-success-light: #d1fae5;
-$color-error: #dc2626;
+$color-error: #D72638;  // 新しいエラー色
 $color-error-light: #fef2f2;
 $color-warning: #d97706;
 $color-warning-light: #fef3c7;
@@ -48,8 +48,8 @@ $color-text-inverse: #ffffff;
 // Border Colors
 $color-border: #e5e7eb;
 $color-border-light: #f3f4f6;
-$color-border-focus: #1a73e8;
-$color-border-error: #dc2626;
+$color-border-focus: #232ED1;  // プライマリ色に変更
+$color-border-error: #D72638;  // エラー色に変更
 
 /* Typography */
 $font-family-base: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -113,6 +113,7 @@ $radius-lg: 8px;
 $radius-xl: 12px;
 $radius-2xl: 16px;
 $radius-full: 9999px;
+$radius-pill: 18px;  // ボタン用の半円形状（高さ36pxの半分）
 
 /* Shadows */
 $shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
@@ -121,7 +122,7 @@ $shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
 $shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
 $shadow-card: 0 2px 8px rgba(0, 0, 0, 0.1);
 $shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.15);
-$shadow-focus: 0 0 0 3px rgba(26, 115, 232, 0.1);
+$shadow-focus: 0 0 0 3px rgba(35, 46, 209, 0.1);  // プライマリ色に変更
 
 /* Z-index */
 $z-dropdown: 1000;
@@ -148,13 +149,14 @@ $breakpoint-xl: 1280px;
 $breakpoint-2xl: 1536px;
 
 /* Component Specific */
-// Buttons
+// Buttons - 新しい仕様
 $button-height-sm: 32px;
-$button-height-md: 40px;
-$button-height-lg: 48px;
+$button-height-md: 36px;    // 新しい高さ
+$button-height-lg: 40px;
 $button-padding-x-sm: 12px;
 $button-padding-x-md: 16px;
-$button-padding-x-lg: 24px;
+$button-padding-x-lg: 20px;
+$button-font-size: 14px;    // 統一フォントサイズ
 
 // Input
 $input-height: 40px;

@@ -74,6 +74,7 @@ const buttonClasses = computed(() => [
 
 <style scoped lang="scss">
 @use "@/styles/variables.scss" as *;
+@use "sass:color";
 
 /* ベースボタンスタイル */
 .btn {
@@ -82,7 +83,7 @@ const buttonClasses = computed(() => [
   justify-content: center;
   gap: $space-2;
   border: $border-width solid transparent;
-  border-radius: $radius-lg;
+  border-radius: $radius-pill; // デフォルトで半円形状
   font-family: inherit;
   font-weight: $font-weight-medium;
   text-decoration: none;
@@ -131,32 +132,35 @@ const buttonClasses = computed(() => [
 .btn-sm {
   height: $button-height-sm;
   padding: 0 $button-padding-x-sm;
-  font-size: $font-size-sm;
+  font-size: $button-font-size;
   gap: $space-1;
+  border-radius: calc($button-height-sm / 2); // 高さの半分で半円形状
 }
 
 .btn-md {
   height: $button-height-md;
   padding: 0 $button-padding-x-md;
-  font-size: $font-size-base;
+  font-size: $button-font-size;
   gap: $space-2;
+  border-radius: $radius-pill; // 18px（36pxの半分）
 }
 
 .btn-lg {
   height: $button-height-lg;
   padding: 0 $button-padding-x-lg;
-  font-size: $font-size-lg;
+  font-size: $button-font-size;
   gap: $space-3;
+  border-radius: calc($button-height-lg / 2); // 高さの半分で半円形状
 }
 
 /* ボタンバリアント */
 .btn-primary {
-  background: $color-primary;
+  background: $color-primary;  // #232ED1
   border-color: $color-primary;
   color: $color-white;
 
   &:hover:not(:disabled):not(.btn-loading) {
-    background: $color-primary-hover;
+    background: $color-primary-hover;  // #1e28b8
     border-color: $color-primary-hover;
   }
 }
@@ -194,13 +198,13 @@ const buttonClasses = computed(() => [
 }
 
 .btn-danger {
-  background: $color-error;
-  border-color: $color-error;
-  color: $color-white;
+  background: $color-white;        // 白いフィル
+  border-color: $color-error;      // #D72638 ボーダー
+  color: $color-error;             // #D72638 文字色
 
   &:hover:not(:disabled):not(.btn-loading) {
-    background: darken($color-error, 10%);
-    border-color: darken($color-error, 10%);
+    background: $color-error;      // ホバー時は背景色に
+    color: $color-white;           // ホバー時は白文字
   }
 }
 
@@ -210,8 +214,8 @@ const buttonClasses = computed(() => [
   color: $color-white;
 
   &:hover:not(:disabled):not(.btn-loading) {
-    background: darken($color-success, 10%);
-    border-color: darken($color-success, 10%);
+    background: color.adjust($color-success, $lightness: -10%);
+    border-color: color.adjust($color-success, $lightness: -10%);
   }
 }
 
@@ -308,3 +312,4 @@ const buttonClasses = computed(() => [
     }
   }
 }
+</style>
