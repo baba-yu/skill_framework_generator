@@ -1,0 +1,73 @@
+{
+  "totalKeywords": 542,
+  "categories": {
+    "occupations": 154,
+    "technologies": 220,
+    "industries": 73,
+    "skills": 62,
+    "tools": 33
+  },
+  "topKeywords": {
+    "occupations": [
+      "administrators",
+      "aerospace",
+      "aerospace engineer",
+      "aerospace engineering technician",
+      "agricultural engineer",
+      "analysis",
+      "analyst",
+      "analysts",
+      "animators",
+      "applications"
+    ],
+    "technologies": [
+      ".net",
+      "3d printing",
+      "5g",
+      "6g",
+      "actuators",
+      "adaptive control",
+      "additive manufacturing",
+      "algorithms",
+      "analog circuits",
+      "analytics"
+    ],
+    "industries": [
+      "advertising",
+      "aerospace",
+      "aerospace manufacturing",
+      "agriculture",
+      "architectural services",
+      "automotive",
+      "automotive manufacturing",
+      "aviation",
+      "banking",
+      "biotechnology"
+    ],
+    "skills": [
+      "agile",
+      "analytical thinking",
+      "artificial intelligence",
+      "automation",
+      "budgeting",
+      "calibration",
+      "coding",
+      "collaboration",
+      "communication",
+      "compliance"
+    ],
+    "tools": [
+      "asana",
+      "autocad",
+      "aws",
+      "azure",
+      "confluence",
+      "docker",
+      "eclipse",
+      "excel",
+      "figma",
+      "git"
+    ]
+  },
+  "timestamp": "2025-08-13T19:53:18.138Z"
+}

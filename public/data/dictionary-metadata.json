@@ -1,0 +1,22 @@
+{
+  "version": "1.0.0",
+  "buildDate": "2025-08-13T19:53:18.144Z",
+  "sources": [
+    "O*NET",
+    "IEEE",
+    "BLS"
+  ],
+  "totalKeywords": 542,
+  "categories": [
+    "occupations",
+    "technologies",
+    "industries",
+    "skills",
+    "tools"
+  ],
+  "buildInfo": {
+    "node": "v20.19.0",
+    "platform": "linux",
+    "arch": "x64"
+  }
+}
