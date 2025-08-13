@@ -56,7 +56,7 @@
         <div class="column skills-column">
           <h3 class="column-title">SKILLS</h3>
           <div class="column-content">
-            <div v-if="selectedCategorySkills.length > 0" class="skills-list">
+            <div v-if="selectedCategorySkills.length > 0" class="skills-list" :class="{ scrollable: selectedCategorySkills.length >= 14 }">
               <button
                 v-for="skill in selectedCategorySkills"
                 :key="skill.name"
@@ -358,7 +358,7 @@ onMounted(async () => {
 .column-content {
   flex: 1;
   padding: 16px 0;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .loading,
@@ -376,6 +376,33 @@ onMounted(async () => {
 .skills-list {
   display: flex;
   flex-direction: column;
+}
+
+// スキルリストのスクロール対応
+.skills-list {
+  &.scrollable {
+    max-height: 600px; // より多くのスキルを表示可能に
+    overflow-y: auto;
+    
+    // カスタムスクロールバー
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 3px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+      
+      &:hover {
+        background: #94a3b8;
+      }
+    }
+  }
 }
 
 .category-item,
@@ -419,6 +446,25 @@ onMounted(async () => {
 .skill-description-scroll {
   max-height: 300px;
   overflow-y: auto;
+  
+  // カスタムスクロールバー
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+    
+    &:hover {
+      background: #94a3b8;
+    }
+  }
 }
 
 .skill-description {
@@ -446,6 +492,11 @@ onMounted(async () => {
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
+  }
+  
+  // モバイルでもスクロール対応
+  .skills-list.scrollable {
+    max-height: 450px; // モバイルでも十分な高さを確保
   }
 }
 </style>
