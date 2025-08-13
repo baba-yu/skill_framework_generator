@@ -87,7 +87,6 @@
           size="md"
           :disabled="selectedCount === 0"
           @click="$emit('clear')"
-          class="clear-btn"
         >
           Clear all
         </BaseButton>
@@ -97,7 +96,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
+import { useSearchStore } from '@/store/search';
 import BaseButton from '@/components/base/BaseButton.vue';
 
 // Props
@@ -119,6 +119,9 @@ interface Emits {
 
 const emit = defineEmits<Emits>();
 
+// Store
+const searchStore = useSearchStore();
+
 // State
 const searchTags = ref<string[]>([]);
 const searchInput = ref('');
@@ -139,16 +142,21 @@ function addTagFromInput() {
   if (trimmed && !searchTags.value.includes(trimmed) && searchTags.value.length < 3) {
     searchTags.value.push(trimmed);
     searchInput.value = '';
+    // ストアにも保存
+    searchStore.setKeywords([...searchTags.value]);
   }
 }
 
 function removeTag(index: number) {
   searchTags.value.splice(index, 1);
+  // ストアにも反映
+  searchStore.setKeywords([...searchTags.value]);
 }
 
 function clearAllTags() {
   searchTags.value = [];
   searchInput.value = '';
+  searchStore.setKeywords([]);
   focusInput();
 }
 
@@ -188,7 +196,20 @@ function executeSearch() {
 function clearTags() {
   searchTags.value = [];
   searchInput.value = '';
+  searchStore.setKeywords([]);
 }
+
+// ストアからキーワードを復元
+onMounted(() => {
+  if (searchStore.keywords.length > 0) {
+    searchTags.value = [...searchStore.keywords];
+  }
+});
+
+// ストアの変更を監視
+watch(() => searchStore.keywords, (newKeywords) => {
+  searchTags.value = [...newKeywords];
+});
 
 // 外部からのアクセス用にexposeする
 defineExpose({
@@ -433,17 +454,6 @@ defineExpose({
   display: flex;
   gap: $space-3;
   flex: 0 0 auto;
-}
-
-/* Clear ボタンのスタイル調整 */
-.clear-btn {
-  border-color: $color-error;
-  color: $color-error;
-
-  &:hover:not(:disabled) {
-    background: $color-error;
-    color: $color-white;
-  }
 }
 
 /* レスポンシブ対応 */
