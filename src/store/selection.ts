@@ -10,7 +10,7 @@ export const useSelectionStore = defineStore("selection", {
   actions: {
     toggleSelection(code: string) {
       if (this.selectedCodes.includes(code)) {
-        this.selectedCodes = this.selectedCodes.filter(c => c !== code);
+        this.selectedCodes = this.selectedCodes.filter((c: string) => c !== code);
       } else {
         this.selectedCodes.push(code);
       }
@@ -22,7 +22,6 @@ export const useSelectionStore = defineStore("selection", {
       this.selectedCodes = codes;
     },
   },
-}, {
   persist: {
     key: "selection-cache",
     storage: safeSession,

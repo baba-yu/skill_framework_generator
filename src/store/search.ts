@@ -34,7 +34,6 @@ export const useSearchStore = defineStore("search", {
       this.results = []; 
     },
   },
-}, {
   persist: {
     key: "search-cache",
     storage,
