@@ -24,7 +24,6 @@
               class="tag-input"
               :disabled="isSearching"
               @keydown.enter="handleEnter"
-              @keydown.space="handleSpace"
               @keydown.comma.prevent="addTagFromInput"
               @keydown.backspace="handleBackspace"
             />
@@ -166,13 +165,6 @@ function handleEnter() {
     addTagFromInput();
   }
   // 検索は実行しない
-}
-
-function handleSpace(e: KeyboardEvent) {
-  if (searchInput.value.trim()) {
-    e.preventDefault();
-    addTagFromInput();
-  }
 }
 
 function handleBackspace() {
