@@ -1,0 +1,282 @@
+/* ==========================================================================
+   Typography System
+   ========================================================================== */
+
+   @use "./variables.scss" as *;
+
+   /* Font Face */
+   @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
+   
+   /* Base Typography */
+   html {
+     font-size: $font-size-base;
+     line-height: $line-height-normal;
+   }
+   
+   body {
+     font-family: $font-family-base;
+     font-weight: $font-weight-normal;
+     color: $color-text;
+     -webkit-font-smoothing: antialiased;
+     -moz-osx-font-smoothing: grayscale;
+   }
+   
+   /* Heading Styles */
+   .heading-1,
+   h1 {
+     font-size: $font-size-4xl;
+     font-weight: $font-weight-bold;
+     line-height: $line-height-tight;
+     color: $color-text;
+     margin: 0 0 $space-6 0;
+     
+     @media (max-width: $breakpoint-md) {
+       font-size: $font-size-3xl;
+     }
+   }
+   
+   .heading-2,
+   h2 {
+     font-size: $font-size-3xl;
+     font-weight: $font-weight-semibold;
+     line-height: $line-height-tight;
+     color: $color-text;
+     margin: 0 0 $space-5 0;
+     
+     @media (max-width: $breakpoint-md) {
+       font-size: $font-size-2xl;
+     }
+   }
+   
+   .heading-3,
+   h3 {
+     font-size: $font-size-2xl;
+     font-weight: $font-weight-semibold;
+     line-height: $line-height-tight;
+     color: $color-text;
+     margin: 0 0 $space-4 0;
+     
+     @media (max-width: $breakpoint-md) {
+       font-size: $font-size-xl;
+     }
+   }
+   
+   .heading-4,
+   h4 {
+     font-size: $font-size-xl;
+     font-weight: $font-weight-medium;
+     line-height: $line-height-normal;
+     color: $color-text;
+     margin: 0 0 $space-3 0;
+     
+     @media (max-width: $breakpoint-md) {
+       font-size: $font-size-lg;
+     }
+   }
+   
+   .heading-5,
+   h5 {
+     font-size: $font-size-lg;
+     font-weight: $font-weight-medium;
+     line-height: $line-height-normal;
+     color: $color-text;
+     margin: 0 0 $space-3 0;
+   }
+   
+   .heading-6,
+   h6 {
+     font-size: $font-size-base;
+     font-weight: $font-weight-medium;
+     line-height: $line-height-normal;
+     color: $color-text;
+     margin: 0 0 $space-2 0;
+   }
+   
+   /* Body Text */
+   .text-body,
+   p {
+     font-size: $font-size-base;
+     font-weight: $font-weight-normal;
+     line-height: $line-height-normal;
+     color: $color-text;
+     margin: 0 0 $space-4 0;
+     
+     &:last-child {
+       margin-bottom: 0;
+     }
+   }
+   
+   .text-body-sm {
+     font-size: $font-size-sm;
+     font-weight: $font-weight-normal;
+     line-height: $line-height-normal;
+     color: $color-text;
+   }
+   
+   .text-body-lg {
+     font-size: $font-size-lg;
+     font-weight: $font-weight-normal;
+     line-height: $line-height-relaxed;
+     color: $color-text;
+   }
+   
+   /* Utility Text Classes */
+   .text-xs { font-size: $font-size-xs; }
+   .text-sm { font-size: $font-size-sm; }
+   .text-base { font-size: $font-size-base; }
+   .text-lg { font-size: $font-size-lg; }
+   .text-xl { font-size: $font-size-xl; }
+   .text-2xl { font-size: $font-size-2xl; }
+   .text-3xl { font-size: $font-size-3xl; }
+   .text-4xl { font-size: $font-size-4xl; }
+   
+   /* Font Weight Classes */
+   .font-light { font-weight: $font-weight-light; }
+   .font-normal { font-weight: $font-weight-normal; }
+   .font-medium { font-weight: $font-weight-medium; }
+   .font-semibold { font-weight: $font-weight-semibold; }
+   .font-bold { font-weight: $font-weight-bold; }
+   .font-extrabold { font-weight: $font-weight-extrabold; }
+   
+   /* Line Height Classes */
+   .leading-tight { line-height: $line-height-tight; }
+   .leading-normal { line-height: $line-height-normal; }
+   .leading-relaxed { line-height: $line-height-relaxed; }
+   .leading-loose { line-height: $line-height-loose; }
+   
+   /* Text Color Classes */
+   .text-primary { color: $color-text; }
+   .text-secondary { color: $color-text-secondary; }
+   .text-muted { color: $color-text-muted; }
+   .text-inverse { color: $color-text-inverse; }
+   .text-success { color: $color-success; }
+   .text-error { color: $color-error; }
+   .text-warning { color: $color-warning; }
+   .text-info { color: $color-info; }
+   
+   /* Text Transform */
+   .text-uppercase { text-transform: uppercase; }
+   .text-lowercase { text-transform: lowercase; }
+   .text-capitalize { text-transform: capitalize; }
+   
+   /* Text Decoration */
+   .text-underline { text-decoration: underline; }
+   .text-no-underline { text-decoration: none; }
+   
+   /* Text Alignment */
+   .text-left { text-align: left; }
+   .text-center { text-align: center; }
+   .text-right { text-align: right; }
+   .text-justify { text-align: justify; }
+   
+   /* Special Text Styles */
+   .text-mono {
+     font-family: $font-family-mono;
+     font-size: $font-size-sm;
+   }
+   
+   .text-label {
+     font-size: $font-size-sm;
+     font-weight: $font-weight-medium;
+     color: $color-text-secondary;
+     text-transform: uppercase;
+     letter-spacing: 0.5px;
+   }
+   
+   .text-caption {
+     font-size: $font-size-xs;
+     font-weight: $font-weight-normal;
+     color: $color-text-muted;
+     line-height: $line-height-normal;
+   }
+   
+   .text-link {
+     color: $color-primary;
+     text-decoration: none;
+     transition: $transition-colors;
+     
+     &:hover {
+       color: $color-primary-hover;
+       text-decoration: underline;
+     }
+     
+     &:focus {
+       outline: 2px solid $color-primary;
+       outline-offset: 2px;
+     }
+   }
+   
+   /* Truncation */
+   .text-truncate {
+     overflow: hidden;
+     text-overflow: ellipsis;
+     white-space: nowrap;
+   }
+   
+   .text-clamp-2 {
+     display: -webkit-box;
+     -webkit-line-clamp: 2;
+     -webkit-box-orient: vertical;
+     overflow: hidden;
+   }
+   
+   .text-clamp-3 {
+     display: -webkit-box;
+     -webkit-line-clamp: 3;
+     -webkit-box-orient: vertical;
+     overflow: hidden;
+   }
+   
+   /* Lists */
+   ul, ol {
+     margin: 0 0 $space-4 0;
+     padding-left: $space-6;
+     
+     &:last-child {
+       margin-bottom: 0;
+     }
+   }
+   
+   li {
+     margin-bottom: $space-1;
+     line-height: $line-height-relaxed;
+     
+     &:last-child {
+       margin-bottom: 0;
+     }
+   }
+   
+   /* Blockquote */
+   blockquote {
+     margin: 0 0 $space-4 0;
+     padding-left: $space-4;
+     border-left: 4px solid $color-border;
+     font-style: italic;
+     color: $color-text-secondary;
+   }
+   
+   /* Code */
+   code {
+     font-family: $font-family-mono;
+     font-size: 0.875em;
+     background: $color-gray-100;
+     padding: 2px 4px;
+     border-radius: $radius-sm;
+     color: $color-text;
+   }
+   
+   pre {
+     font-family: $font-family-mono;
+     background: $color-gray-900;
+     color: $color-white;
+     padding: $space-4;
+     border-radius: $radius-lg;
+     overflow-x: auto;
+     margin: 0 0 $space-4 0;
+     
+     code {
+       background: transparent;
+       padding: 0;
+       color: inherit;
+     }
+   }
