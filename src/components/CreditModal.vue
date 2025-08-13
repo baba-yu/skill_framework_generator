@@ -9,9 +9,9 @@
           aria-labelledby="modal-title"
           aria-describedby="modal-content"
         >
-          <!-- モーダルヘッダー -->
-          <div class="modal-header">
-            <h3 id="modal-title" class="modal-title">Credit</h3>
+          <!-- モーダルボディ -->
+          <div id="modal-content" class="modal-body">
+            <!-- 閉じるボタン -->
             <button 
               class="modal-close-button"
               @click="$emit('close')"
@@ -26,10 +26,7 @@
                 />
               </svg>
             </button>
-          </div>
-          
-          <!-- モーダルボディ -->
-          <div id="modal-content" class="modal-body">
+
             <div class="credit-content">
               <!-- O*NET ロゴ -->
               <div class="onet-logo-container">
@@ -66,16 +63,6 @@
                 </p>
               </div>
             </div>
-          </div>
-          
-          <!-- モーダルフッター -->
-          <div class="modal-footer">
-            <button 
-              class="btn btn-secondary btn-md"
-              @click="$emit('close')"
-            >
-              Close
-            </button>
           </div>
         </div>
       </div>
@@ -153,39 +140,33 @@ onUnmounted(() => {
   z-index: $z-modal;
   width: 100%;
   max-width: 500px;
-  display: flex;
-  flex-direction: column;
+  position: relative;
 }
 
-/* モーダルヘッダー */
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+/* モーダルボディ */
+.modal-body {
+  position: relative;
   padding: $space-6;
-  border-bottom: $border-width solid $color-border;
-  background: $color-gray-50;
+  overflow-y: auto;
 }
 
-.modal-title {
-  margin: 0;
-  font-size: $font-size-xl;
-  font-weight: $font-weight-semibold;
-  color: $color-text;
-}
-
+/* 閉じるボタン */
 .modal-close-button {
+  position: absolute;
+  top: $space-4;
+  right: $space-4;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   background: none;
   border: none;
   border-radius: $radius-md;
   color: $color-text-secondary;
   cursor: pointer;
   transition: $transition-colors;
+  z-index: 10;
   
   &:hover {
     background: $color-gray-200;
@@ -199,18 +180,12 @@ onUnmounted(() => {
   }
 }
 
-/* モーダルボディ */
-.modal-body {
-  flex: 1;
-  padding: $space-6;
-  overflow-y: auto;
-}
-
 .credit-content {
   display: flex;
   flex-direction: column;
   gap: $space-5;
   text-align: center;
+  padding-top: $space-4; // 閉じるボタンとの余白
 }
 
 /* O*NET ロゴ */
@@ -282,16 +257,6 @@ onUnmounted(() => {
   text-align: left;
 }
 
-/* モーダルフッター */
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: $space-3;
-  padding: $space-6;
-  border-top: $border-width solid $color-border;
-  background: $color-gray-50;
-}
-
 /* アニメーション */
 .modal-enter-active,
 .modal-leave-active {
@@ -314,19 +279,15 @@ onUnmounted(() => {
     padding: $space-3;
   }
   
-  .modal-header,
-  .modal-body,
-  .modal-footer {
+  .modal-body {
     padding: $space-4;
   }
   
-  .modal-title {
-    font-size: $font-size-lg;
-  }
-  
   .modal-close-button {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
+    top: $space-3;
+    right: $space-3;
   }
   
   .credit-description {
@@ -355,11 +316,6 @@ onUnmounted(() => {
 @media (prefers-contrast: high) {
   .modal-container {
     border: 2px solid $color-text;
-  }
-  
-  .modal-header,
-  .modal-footer {
-    border-width: 2px;
   }
 }
 </style>
