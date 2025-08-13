@@ -28,7 +28,6 @@
           role="menuitem"
           @click="closeMenu"
         >
-          <span class="menu-icon">🚀</span>
           <span class="menu-text">Dashboard</span>
           <span class="external-icon">↗</span>
         </a>
@@ -40,7 +39,6 @@
           role="menuitem"
           @click="closeMenu"
         >
-          <span class="menu-icon">🌐</span>
           <span class="menu-text">Website</span>
           <span class="external-icon">↗</span>
         </a>
@@ -52,7 +50,6 @@
           role="menuitem"
           @click="openCredit"
         >
-          <span class="menu-icon">ℹ️</span>
           <span class="menu-text">Credit</span>
         </button>
       </div>
@@ -188,11 +185,6 @@ onUnmounted(() => {
     background: $color-primary-light;
     color: $color-primary;
   }
-}
-
-.menu-icon {
-  font-size: 16px;
-  flex-shrink: 0;
 }
 
 .menu-text {
