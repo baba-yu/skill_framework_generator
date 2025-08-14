@@ -20,7 +20,7 @@
               ref="inputRef"
               v-model="searchInput"
               type="text"
-              :placeholder="searchTags.length === 0 ? 'Enter keyword(s) of occupation' : ''"
+              :placeholder="searchTags.length === 0 ? 'Enter role keyword(s)' : ''"
               class="tag-input"
               :disabled="isSearching || isTagLimitReached"
               @keydown="handleKeydown"
