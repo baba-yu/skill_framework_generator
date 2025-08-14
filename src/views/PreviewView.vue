@@ -264,13 +264,18 @@ async function loadSkills() {
 function downloadCSV() {
   if (skills.value.length === 0) return;
   
-  const csvData = skills.value.map(skill => ({
-    'Category': formatCategoryName(skill.category),
-    'Skill Name': skill.name,
-    'Description': skill.description
-  }));
+  // ヘッダーを定義
+  const headers = ['Category', 'Skill Name', 'Description'];
   
-  downloadCsv(csvData, 'skill-framework.csv');
+  // データを2次元配列に変換
+  const rows = skills.value.map(skill => [
+    formatCategoryName(skill.category),
+    skill.name,
+    skill.description
+  ]);
+  
+  // 正しく3つの引数を渡す
+  downloadCsv('skill-framework.csv', headers, rows);
 }
 
 // Lifecycle
