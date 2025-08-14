@@ -105,13 +105,14 @@ function clearAll() {
   closeSidebar(); // サイドバーも閉じる
 }
 
+// SearchView.vue の goToPreview() 関数を更新
 function goToPreview() {
   if (selection.selectedCodes.length === 0) return;
   
   loading.startLoading('nav');
   closeSidebar(); // プレビューに移動時はサイドバーを閉じる
   router.push({
-    path: '/preview',
+    path: '/skill-framework-builder/preview', // 新しいパス構造
     query: { codes: selection.selectedCodes.join(',') }
   });
 }
