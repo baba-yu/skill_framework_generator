@@ -122,7 +122,43 @@
               
               <!-- 説明ボックス -->
               <div class="skill-description-box">
-                <p class="skill-description">{{ selectedSkill.description }}</p>
+                <div class="description-wrapper">
+                  <p 
+                    ref="descriptionRef"
+                    :class="[
+                      'skill-description', 
+                      { 'is-truncated': !isDescriptionExpanded && needsDescriptionTruncation }
+                    ]"
+                  >{{ selectedSkill.description }}</p>
+                  
+                  <button
+                    v-if="needsDescriptionTruncation"
+                    class="see-all-toggle"
+                    @click="toggleDescriptionExpanded"
+                    :aria-expanded="isDescriptionExpanded"
+                    :aria-label="isDescriptionExpanded ? 'テキストを省略表示する' : 'テキストを全文表示する'"
+                  >
+                    <span class="toggle-text">
+                      {{ isDescriptionExpanded ? 'See less' : 'See all' }}
+                    </span>
+                    <svg 
+                      class="toggle-icon"
+                      :class="{ 'is-expanded': isDescriptionExpanded }"
+                      width="12" 
+                      height="12" 
+                      viewBox="0 0 12 12" 
+                      fill="none"
+                    >
+                      <path 
+                        d="M3 4.5L6 7.5L9 4.5" 
+                        stroke="currentColor" 
+                        stroke-width="1.5" 
+                        stroke-linecap="round" 
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </button>
+                </div>
               </div>
             </div>
             
@@ -154,7 +190,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import { useSelectionStore } from '@/store/selection';
@@ -177,6 +213,13 @@ const skills = ref<SkillItem[]>([]);
 const error = ref('');
 const selectedCategory = ref('');
 const selectedSkill = ref<SkillItem | null>(null);
+
+// Description truncation
+const descriptionRef = ref<HTMLElement | null>(null);
+const isDescriptionExpanded = ref(false);
+const needsDescriptionTruncation = ref(false);
+const MAX_DESCRIPTION_LINES = 3;
+const MAX_DESCRIPTION_LENGTH = 200; // 200文字で省略
 
 // Computed
 const availableCategories = computed(() => {
@@ -204,6 +247,47 @@ const occupationNames = computed(() => {
 });
 
 const hasSkills = computed(() => skills.value.length > 0);
+
+// Description truncation methods
+const checkDescriptionTruncation = () => {
+  if (!selectedSkill.value?.description) {
+    needsDescriptionTruncation.value = false;
+    return;
+  }
+  
+  const description = selectedSkill.value.description;
+  const lines = description.split('\n');
+  
+  console.log('=== Description Analysis ===');
+  console.log('Description lines:', lines.length);
+  console.log('Description length:', description.length);
+  console.log('Description preview:', description.substring(0, 100) + '...');
+  console.log('Lines array:', lines);
+  
+  // 改行コードによる行数チェック OR 文字数による判定
+  const hasMultipleLines = lines.length > MAX_DESCRIPTION_LINES;
+  const isTooLong = description.length > MAX_DESCRIPTION_LENGTH;
+  
+  needsDescriptionTruncation.value = hasMultipleLines || isTooLong;
+  
+  console.log('hasMultipleLines:', hasMultipleLines);
+  console.log('isTooLong:', isTooLong);
+  console.log('needsDescriptionTruncation:', needsDescriptionTruncation.value);
+  console.log('========================');
+};
+
+const toggleDescriptionExpanded = () => {
+  isDescriptionExpanded.value = !isDescriptionExpanded.value;
+  console.log('Description expanded:', isDescriptionExpanded.value);
+};
+
+// Watchers
+watch(() => selectedSkill.value, () => {
+  isDescriptionExpanded.value = false;
+  nextTick(() => {
+    checkDescriptionTruncation();
+  });
+}, { immediate: true });
 
 // Methods
 function selectCategory(category: string) {
@@ -531,11 +615,71 @@ watch(codes, () => {
   padding: $space-4;
 }
 
+.description-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .skill-description {
   margin: 0;
   color: $color-text;
   line-height: $line-height-relaxed;
   font-size: $font-size-sm;
+  white-space: pre-line;
+  transition: all 0.3s ease;
+  width: 100%;
+  
+  &.is-truncated {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    white-space: normal;
+  }
+}
+
+.see-all-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-1;
+  margin-top: $space-3;
+  padding: $space-1 $space-2;
+  background: transparent;
+  border: none;
+  color: $color-primary;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  border-radius: $radius-sm;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: $color-primary-hover;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-primary;
+    outline-offset: 2px;
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+}
+
+.toggle-text {
+  font-size: inherit;
+}
+
+.toggle-icon {
+  transition: transform 0.2s ease;
+  color: currentColor;
+  
+  &.is-expanded {
+    transform: rotate(180deg);
+  }
 }
 
 /* 状態表示 */
@@ -620,6 +764,15 @@ watch(codes, () => {
     &:hover {
       background: $color-gray-400;
     }
+  }
+}
+
+/* アクセシビリティ対応 */
+@media (prefers-reduced-motion: reduce) {
+  .skill-description,
+  .toggle-icon,
+  .see-all-toggle {
+    transition: none;
   }
 }
 
