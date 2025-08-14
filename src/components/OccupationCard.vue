@@ -125,7 +125,7 @@
     </div>
 
     <!-- 選択状態のインジケーター -->
-    <div v-if="isSelected" class="selection-indicator">
+    <!-- <div v-if="isSelected" class="selection-indicator">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
         <circle cx="12" cy="12" r="10" fill="currentColor"/>
         <path 
@@ -136,7 +136,7 @@
           stroke-linejoin="round"
         />
       </svg>
-    </div>
+    </div> -->
   </div>
 </template>
 
