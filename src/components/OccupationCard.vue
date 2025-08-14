@@ -8,46 +8,134 @@
       'limit-reached': isLimitReached && !isSelected
     }"
   >
-    <!-- 左側：タイトルとステータス -->
+    <!-- 左側：タイトル、インフォ、アクション -->
     <div class="card-left">
-      <div class="title-section">
-        <h3 class="occupation-title">{{ occupation.title }}</h3>
-        <div class="status-section">
+      <div class="card-content">
+        <!-- タイトル列（タイトル+インフォアイコン） -->
+        <div class="title-column">
+          <h3 class="occupation-title">{{ occupation.title }}</h3>
+          <BaseHover 
+            :content="occupation.description"
+            position="right"
+            :delay="300"
+            max-width="400px"
+          >
+            <button 
+              class="info-icon"
+              aria-label="Show occupation description"
+              tabindex="0"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <circle 
+                  cx="12" 
+                  cy="12" 
+                  r="10" 
+                  stroke="currentColor" 
+                  stroke-width="1.5"
+                  fill="none"
+                />
+                <line 
+                  x1="12" 
+                  y1="16" 
+                  x2="12" 
+                  y2="12" 
+                  stroke="currentColor" 
+                  stroke-width="1.5" 
+                  stroke-linecap="round"
+                />
+                <circle 
+                  cx="12" 
+                  cy="9" 
+                  r="1" 
+                  fill="currentColor"
+                />
+              </svg>
+            </button>
+          </BaseHover>
+        </div>
+
+        <!-- アクション列 -->
+        <div class="action-column">
           <button 
-            v-if="isSelected" 
-            class="status-text status-added"
+            class="toggle-button"
+            :class="{ 
+              'added': isSelected,
+              'disabled': isLimitReached && !isSelected
+            }"
+            :disabled="isLimitReached && !isSelected"
+            :aria-label="isSelected ? 'Remove from framework' : 'Add to framework'"
             @click="$emit('toggle')"
           >
-            Added!
-          </button>
-          <button 
-            v-else-if="isLimitReached" 
-            class="status-text status-limit"
-            disabled
-          >
-            Limit reached (10)
-          </button>
-          <button 
-            v-else 
-            class="status-text status-add"
-            @click="$emit('toggle')"
-          >
-            Add to your framework
+            <!-- アイコン -->
+            <div class="toggle-icon-circle">
+              <transition name="icon-fade" mode="out-in">
+                <!-- 選択済み：マイナスアイコン -->
+                <svg 
+                  v-if="isSelected" 
+                  key="minus"
+                  width="14" 
+                  height="14" 
+                  viewBox="0 0 24 24" 
+                  fill="none"
+                >
+                  <path 
+                    d="M5 12h14" 
+                    stroke="currentColor" 
+                    stroke-width="2.5" 
+                    stroke-linecap="round"
+                  />
+                </svg>
+                <!-- 制限達成：禁止アイコン -->
+                <svg 
+                  v-else-if="isLimitReached" 
+                  key="banned"
+                  width="14" 
+                  height="14" 
+                  viewBox="0 0 24 24" 
+                  fill="none"
+                >
+                  <path 
+                    d="m15 9-6 6M9 9l6 6" 
+                    stroke="currentColor" 
+                    stroke-width="2" 
+                    stroke-linecap="round"
+                  />
+                </svg>
+                <!-- 通常：プラスアイコン -->
+                <svg 
+                  v-else 
+                  key="plus"
+                  width="14" 
+                  height="14" 
+                  viewBox="0 0 24 24" 
+                  fill="none"
+                >
+                  <path 
+                    d="M12 5v14M5 12h14" 
+                    stroke="currentColor" 
+                    stroke-width="2.5" 
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </transition>
+            </div>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- 右側：説明（スクロール可能） -->
-    <div class="card-right">
-      <div class="description-container">
-        <p class="occupation-description">{{ occupation.description }}</p>
-      </div>
-    </div>
-
     <!-- 選択状態のインジケーター -->
     <div v-if="isSelected" class="selection-indicator">
-      <span class="material-symbols-outlined">check_circle</span>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="10" fill="currentColor"/>
+        <path 
+          d="M9 12l2 2 4-4" 
+          stroke="white" 
+          stroke-width="2" 
+          stroke-linecap="round" 
+          stroke-linejoin="round"
+        />
+      </svg>
     </div>
   </div>
 </template>
@@ -55,6 +143,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import type { Occupation } from '@/api/occupations';
+import BaseHover from '@/components/base/BaseHover.vue';
 
 interface Props {
   occupation: Occupation;
@@ -86,27 +175,59 @@ defineEmits<{
   transition: $transition-colors, $transition-shadow;
   overflow: hidden;
   display: flex;
-  height: 200px;
-  min-height: 200px;
-  max-height: 200px;
+  min-height: 120px;
+  padding: $space-4;
 
   &.selected {
     border-color: $color-primary;
+    background: rgba(35, 46, 209, 0.02);
   }
 
   &.limit-reached {
     opacity: 0.6;
-    pointer-events: none;
+  }
+
+  &:hover:not(.limit-reached) {
+    border-color: $color-primary;
+    box-shadow: $shadow-card-hover;
   }
 }
 
 .card-left {
   flex: 1;
-  padding: $space-4;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  background: $color-white;
+  justify-content: center;
+}
+
+.card-content {
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+  width: 100%;
+}
+
+.title-column {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  flex: 1;
+  min-width: 0; // テキストのオーバーフロー対応
+}
+
+.info-column {
+  flex-shrink: 0;
+}
+
+.action-column {
+  flex-shrink: 0;
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  flex: 1;
 }
 
 .title-section {
@@ -114,6 +235,7 @@ defineEmits<{
   flex-direction: column;
   height: 100%;
   justify-content: space-between;
+  gap: $space-3;
 }
 
 .occupation-title {
@@ -123,30 +245,59 @@ defineEmits<{
   color: $color-text;
   line-height: $line-height-tight;
   word-wrap: break-word;
+  flex-shrink: 1;
+  min-width: 0;
 }
 
-.status-section {
+.info-icon {
+  flex-shrink: 0;
   display: flex;
-}
-
-.status-text {
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
   background: none;
   border: none;
-  padding: 0;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
-  transition: $transition-colors;
+  color: $color-text-secondary;
   cursor: pointer;
-  text-align: left;
+  border-radius: 50%;
+  transition: $transition-colors;
 
-  &:hover:not(:disabled) {
-    opacity: 0.8;
+  &:hover {
+    color: $color-primary;
+    background: rgba(35, 46, 209, 0.08);
   }
 
   &:focus-visible {
     outline: 2px solid $color-primary;
     outline-offset: 2px;
-    border-radius: $radius-sm;
+  }
+}
+
+.action-section {
+  display: flex;
+  align-self: flex-start;
+}
+
+.toggle-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: $transition-colors;
+  border-radius: 50%;
+
+  &:hover:not(:disabled) {
+    background: rgba(35, 46, 209, 0.08);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-primary;
+    outline-offset: 2px;
   }
 
   &:disabled {
@@ -154,55 +305,29 @@ defineEmits<{
     opacity: 0.6;
   }
 
-  &.status-add {
-    color: #232ED1;
+  &:not(.added):not(.disabled) {
+    color: $color-primary;
   }
 
-  &.status-added {
-    color: #828282;
+  &.added {
+    color: $color-text-secondary;
   }
 
-  &.status-limit {
-    color: #dc3545;
+  &.disabled {
+    color: $color-error;
   }
 }
 
-.card-right {
-  flex: 1;
-  background: #F3F6F7;
-  padding: $space-4;
+.toggle-icon-circle {
   display: flex;
-  flex-direction: column;
-}
-
-.description-container {
-  flex: 1;
-  overflow-y: auto;
-  
-  &::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 2px;
-
-    &:hover {
-      background: rgba(0, 0, 0, 0.3);
-    }
-  }
-}
-
-.occupation-description {
-  margin: 0;
-  color: $color-text-secondary;
-  line-height: $line-height-relaxed;
-  font-size: $font-size-sm;
-  padding-right: $space-2;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  transition: $transition-colors;
+  flex-shrink: 0;
 }
 
 .selection-indicator {
@@ -213,12 +338,9 @@ defineEmits<{
   z-index: 2;
   opacity: 0;
   animation: checkFadeIn 0.3s ease-out forwards;
-
-  .material-symbols-outlined {
-    font-size: 20px;
-  }
 }
 
+/* アニメーション */
 @keyframes checkFadeIn {
   from {
     opacity: 0;
@@ -230,15 +352,20 @@ defineEmits<{
   }
 }
 
+.icon-fade-enter-active,
+.icon-fade-leave-active {
+  transition: opacity 0.15s ease;
+}
+
+.icon-fade-enter-from,
+.icon-fade-leave-to {
+  opacity: 0;
+}
+
+/* レスポンシブ対応 */
 @media (max-width: $breakpoint-lg) {
   .occupation-card {
-    height: 120px;
-    min-height: 120px;
-    max-height: 120px;
-  }
-
-  .card-left,
-  .card-right {
+    min-height: 100px;
     padding: $space-3;
   }
 
@@ -246,28 +373,35 @@ defineEmits<{
     font-size: $font-size-base;
   }
 
-  .status-text {
-    font-size: $font-size-xs;
+  .toggle-button,
+  .info-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .toggle-icon-circle {
+    width: 20px;
+    height: 20px;
+    border-width: 1.5px;
+    
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+
+  .info-icon svg {
+    width: 20px;
+    height: 20px;
   }
 }
 
 @media (max-width: $breakpoint-md) {
   .occupation-card {
-    flex-direction: column;
-    height: 160px;
-    min-height: 160px;
-    max-height: 160px;
+    min-height: 90px;
   }
 
-  .card-left {
-    flex: 0 0 auto;
-  }
-
-  .card-right {
-    flex: 1;
-  }
-
-  .title-section {
+  .card-content {
     gap: $space-2;
   }
 
@@ -275,19 +409,46 @@ defineEmits<{
     font-size: $font-size-sm;
   }
 
-  .occupation-description {
-    font-size: $font-size-xs;
+  .toggle-button,
+  .info-icon {
+    width: 24px;
+    height: 24px;
   }
 
-  .selection-indicator .material-symbols-outlined {
-    font-size: 16px;
+  .toggle-icon-circle {
+    width: 18px;
+    height: 18px;
+    border-width: 1px;
+    
+    svg {
+      width: 10px;
+      height: 10px;
+    }
+  }
+
+  .info-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .selection-indicator {
+    svg {
+      width: 16px;
+      height: 16px;
+    }
   }
 }
 
+/* アクセシビリティ */
 @media (prefers-reduced-motion: reduce) {
   .selection-indicator {
     animation: none;
     opacity: 1;
+  }
+  
+  .icon-fade-enter-active,
+  .icon-fade-leave-active {
+    transition: none;
   }
 }
 
@@ -298,6 +459,10 @@ defineEmits<{
     &:hover {
       border-width: 3px;
     }
+  }
+  
+  .info-icon {
+    border: 1px solid currentColor;
   }
 }
 </style>
