@@ -42,6 +42,17 @@
           <span class="menu-text">Website</span>
           <span class="external-icon">↗</span>
         </a>
+
+        <a 
+          href="https://docs.zipteam.com" 
+          target="_blank" 
+          class="menu-item"
+          role="menuitem"
+          @click="closeMenu"
+        >
+          <span class="menu-text">Help center</span>
+          <span class="external-icon">↗</span>
+        </a>
         
         <div class="menu-divider"></div>
         
