@@ -3,8 +3,8 @@
     <div class="preview-view">
       <!-- ブレッドクラム -->
       <div class="breadcrumb">
-        <button class="back-button" @click="$router.push('/')">
-          ← Back to role selection
+        <button class="back-button" @click="$router.push('/skill-framework-builder')">
+          ← Back to framework selection
         </button>
       </div>
 
