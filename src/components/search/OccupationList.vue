@@ -40,10 +40,15 @@
       <div class="initial-icon">
         <img src="@/assets/eye_glass.png" alt="Search" width="256" height="256" />
       </div>
-      <h3 class="initial-title">Search for occupation-based skill frameworks</h3>
-      <p class="initial-description">
-        Enter keywords related to find relevant occupations and add them to your skill framework.
-      </p>
+
+      <br>
+
+      <h3 class="initial-title">Enter keywords to find role-relevant frameworks</h3>
+
+      <!-- <h3 class="initial-title">Search for occupation-based skill frameworks</h3> -->
+      <!-- <p class="initial-description">
+        Enter keywords to find relevant roles.
+      </p> -->
     </div>
   </div>
 </template>
