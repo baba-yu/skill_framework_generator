@@ -10,7 +10,7 @@ export const useSearchStore = defineStore("search", {
   }),
   actions: {
     setKeywords(k: string[]) { 
-      this.keywords = k.slice(0, 3);
+      this.keywords = k.slice(0, 5);
     },
     addKeyword(keyword: string) {
       const trimmed = keyword.trim();

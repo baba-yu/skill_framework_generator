@@ -22,10 +22,8 @@
               type="text"
               :placeholder="searchTags.length === 0 ? 'Enter keyword(s) of occupation' : ''"
               class="tag-input"
-              :disabled="isSearching"
-              @keydown.enter="handleEnter"
-              @keydown.comma.prevent="addTagFromInput"
-              @keydown.backspace="handleBackspace"
+              :disabled="isSearching || isTagLimitReached"
+              @keydown="handleKeydown"
               @input="handleInput"
               @focus="handleFocus"
               @blur="handleBlur"
@@ -76,6 +74,11 @@
             @select="selectSuggestion"
             @close="hideSuggestions"
           />
+        </div>
+        
+        <!-- タグ制限警告 -->
+        <div v-if="shouldShowTagWarning" class="tag-warning">
+          <span class="warning-text">Up to 5 words.</span>
         </div>
       </div>
 
@@ -134,11 +137,16 @@ const searchInput = ref('');
 const inputRef = ref<HTMLInputElement | null>(null);
 const showSuggestions = ref(false);
 const currentSuggestions = ref<string[]>([]);
+const enterPressCount = ref(0);
+const enterTimeout = ref<NodeJS.Timeout | null>(null);
 
 // Computed
 const canSearch = computed(() => 
   searchTags.value.length > 0 || searchInput.value.trim().length > 0
 );
+
+const isTagLimitReached = computed(() => searchTags.value.length >= 5);
+const shouldShowTagWarning = computed(() => searchTags.value.length >= 4);
 
 // Methods
 function focusInput() {
@@ -147,7 +155,7 @@ function focusInput() {
 
 function addTagFromInput() {
   const trimmed = searchInput.value.trim();
-  if (trimmed && !searchTags.value.includes(trimmed) && searchTags.value.length < 3) {
+  if (trimmed && !searchTags.value.includes(trimmed) && searchTags.value.length < 5) {
     searchTags.value.push(trimmed);
     searchInput.value = '';
     hideSuggestions();
@@ -170,12 +178,72 @@ function clearAllTags() {
   focusInput();
 }
 
-function handleEnter() {
-  // Enterキーは入力中のテキストをタグに変換するのみ
-  if (searchInput.value.trim()) {
-    addTagFromInput();
+// 統一されたキーボードイベント処理
+function handleKeydown(event: KeyboardEvent) {
+  switch (event.key) {
+    case 'Enter':
+      // 予測選択が表示されている場合の処理
+      if (showSuggestions.value && currentSuggestions.value.length > 0) {
+        // エンター回数をカウント
+        enterPressCount.value++
+        
+        // タイムアウトをクリア
+        if (enterTimeout.value) {
+          clearTimeout(enterTimeout.value)
+        }
+        
+        if (enterPressCount.value === 1) {
+          // 1回目のエンター: 予測選択コンポーネントに処理を委ねる
+          // 500ms後にカウントをリセット
+          enterTimeout.value = setTimeout(() => {
+            enterPressCount.value = 0
+          }, 500)
+          return
+        } else if (enterPressCount.value >= 2) {
+          // 2回目のエンター: 自由入力でタグ追加
+          event.preventDefault()
+          enterPressCount.value = 0
+          if (enterTimeout.value) {
+            clearTimeout(enterTimeout.value)
+          }
+          if (searchInput.value.trim()) {
+            addTagFromInput()
+          }
+          return
+        }
+      } else {
+        // 予測選択が表示されていない場合は通常通りタグ追加
+        event.preventDefault()
+        if (searchInput.value.trim()) {
+          addTagFromInput()
+        }
+      }
+      break
+      
+    case 'ArrowDown':
+    case 'ArrowUp':
+      // 予測選択が表示されている場合は処理しない（予測選択コンポーネントに委ねる）
+      if (showSuggestions.value && currentSuggestions.value.length > 0) {
+        return
+      }
+      break
+      
+    case ',':
+      event.preventDefault()
+      addTagFromInput()
+      break
+      
+    case 'Backspace':
+      handleBackspace()
+      break
+      
+    case 'Escape':
+      if (showSuggestions.value) {
+        hideSuggestions()
+        event.preventDefault()
+      }
+      break
   }
-  // 検索は実行しない
 }
 
 function handleBackspace() {
@@ -202,7 +270,9 @@ function handleBlur() {
 
 function updateSuggestions() {
   const query = searchInput.value.trim();
-  if (query.length >= 2 && searchTags.value.length < 3) {
+  const tagCount = searchTags.value.length;
+  
+  if (query.length >= 2 && tagCount < 5) {
     currentSuggestions.value = getSuggestions(query, 8);
     showSuggestions.value = currentSuggestions.value.length > 0;
   } else {
@@ -211,6 +281,12 @@ function updateSuggestions() {
 }
 
 function selectSuggestion(suggestion: string) {
+  // 予測選択時はエンターカウントをリセット
+  enterPressCount.value = 0
+  if (enterTimeout.value) {
+    clearTimeout(enterTimeout.value)
+  }
+  
   searchInput.value = suggestion;
   addTagFromInput();
   hideSuggestions();
@@ -220,6 +296,11 @@ function selectSuggestion(suggestion: string) {
 function hideSuggestions() {
   showSuggestions.value = false;
   currentSuggestions.value = [];
+  // 予測選択が閉じたらエンターカウントもリセット
+  enterPressCount.value = 0
+  if (enterTimeout.value) {
+    clearTimeout(enterTimeout.value)
+  }
 }
 
 function executeSearch() {
@@ -453,8 +534,8 @@ defineExpose({
   display: inline-flex;
   align-items: center;
   gap: $space-1;
-  padding: 6px 10px; // 間隔を広げる例
-  height: 25px; // 高さも調整が必要かも
+  padding: 6px 10px;
+  height: 25px;
   font-size: $font-size-sm;
   font-weight: $font-weight-normal;
   flex-shrink: 0;
@@ -509,6 +590,15 @@ defineExpose({
 
 .preview-button {
   white-space: nowrap;
+}
+
+/* タグ制限警告 */
+.tag-warning {
+  margin-top: $space-2;
+  padding: $space-1 $space-2;
+  font-size: $font-size-xs;
+  color: #dc3545; // danger color
+  font-weight: $font-weight-medium;
 }
 
 /* レスポンシブ対応 */

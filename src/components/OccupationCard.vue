@@ -3,8 +3,9 @@
     class="occupation-card"
     :class="{ 
       selected: isSelected,
-      'add-mode': !isSelected,
-      'remove-mode': isSelected 
+      'add-mode': !isSelected && !isLimitReached,
+      'remove-mode': isSelected,
+      'limit-reached': isLimitReached && !isSelected
     }"
   >
     <!-- 左側：タイトルとステータス -->
@@ -18,6 +19,13 @@
             @click="$emit('toggle')"
           >
             Added!
+          </button>
+          <button 
+            v-else-if="isLimitReached" 
+            class="status-text status-limit"
+            disabled
+          >
+            Limit reached (10)
           </button>
           <button 
             v-else 
@@ -45,12 +53,22 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import type { Occupation } from '@/api/occupations';
 
-defineProps<{
+interface Props {
   occupation: Occupation;
   isSelected: boolean;
-}>();
+  selectedCount?: number;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  selectedCount: 0
+});
+
+const isLimitReached = computed(() => 
+  props.selectedCount >= 10 && !props.isSelected
+);
 
 defineEmits<{
   toggle: [];
@@ -68,23 +86,26 @@ defineEmits<{
   transition: $transition-colors, $transition-shadow;
   overflow: hidden;
   display: flex;
-  height: 200px; // 固定サイズ
+  height: 200px;
   min-height: 200px;
   max-height: 200px;
 
-  // 選択状態
   &.selected {
     border-color: $color-primary;
   }
+
+  &.limit-reached {
+    opacity: 0.6;
+    pointer-events: none;
+  }
 }
 
-/* 左側セクション */
 .card-left {
   flex: 1;
   padding: $space-4;
   display: flex;
   flex-direction: column;
-  justify-content: space-between; // 上下に分散
+  justify-content: space-between;
   background: $color-white;
 }
 
@@ -92,7 +113,7 @@ defineEmits<{
   display: flex;
   flex-direction: column;
   height: 100%;
-  justify-content: space-between; // タイトルを上、ステータスを下に
+  justify-content: space-between;
 }
 
 .occupation-title {
@@ -118,7 +139,7 @@ defineEmits<{
   cursor: pointer;
   text-align: left;
 
-  &:hover {
+  &:hover:not(:disabled) {
     opacity: 0.8;
   }
 
@@ -128,19 +149,27 @@ defineEmits<{
     border-radius: $radius-sm;
   }
 
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
   &.status-add {
-    color: #232ED1; // 指定された色
+    color: #232ED1;
   }
 
   &.status-added {
-    color: #828282; // 指定された色
+    color: #828282;
+  }
+
+  &.status-limit {
+    color: #dc3545;
   }
 }
 
-/* 右側セクション */
 .card-right {
   flex: 1;
-  background: #F3F6F7; // 指定された背景色
+  background: #F3F6F7;
   padding: $space-4;
   display: flex;
   flex-direction: column;
@@ -148,9 +177,8 @@ defineEmits<{
 
 .description-container {
   flex: 1;
-  overflow-y: auto; // スクロール可能
+  overflow-y: auto;
   
-  /* カスタムスクロールバー */
   &::-webkit-scrollbar {
     width: 4px;
   }
@@ -174,10 +202,9 @@ defineEmits<{
   color: $color-text-secondary;
   line-height: $line-height-relaxed;
   font-size: $font-size-sm;
-  padding-right: $space-2; // スクロールバーとの余白
+  padding-right: $space-2;
 }
 
-/* 選択状態のインジケーター */
 .selection-indicator {
   position: absolute;
   top: $space-3;
@@ -203,7 +230,6 @@ defineEmits<{
   }
 }
 
-/* レスポンシブ対応 */
 @media (max-width: $breakpoint-lg) {
   .occupation-card {
     height: 120px;
@@ -228,7 +254,7 @@ defineEmits<{
 @media (max-width: $breakpoint-md) {
   .occupation-card {
     flex-direction: column;
-    height: 160px; // 縦並びの場合はやや高く
+    height: 160px;
     min-height: 160px;
     max-height: 160px;
   }
@@ -258,7 +284,6 @@ defineEmits<{
   }
 }
 
-/* アクセシビリティ */
 @media (prefers-reduced-motion: reduce) {
   .selection-indicator {
     animation: none;
@@ -266,7 +291,6 @@ defineEmits<{
   }
 }
 
-/* 高コントラストモード */
 @media (prefers-contrast: high) {
   .occupation-card {
     border-width: 2px;
