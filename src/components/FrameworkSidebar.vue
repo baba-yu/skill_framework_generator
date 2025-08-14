@@ -24,7 +24,7 @@
       >
         <!-- ヘッダー -->
         <div class="sidebar-header">
-          <h3 id="sidebar-title" class="sidebar-title">Selected Occupation(s)</h3>
+          <h3 id="sidebar-title" class="sidebar-title">Selected Role(s)</h3>
           <button 
             class="close-button"
             @click="$emit('close')"
@@ -61,13 +61,13 @@
             
             <!-- フレームワーク制限警告 -->
             <div v-if="shouldShowFrameworkWarning" class="framework-warning">
-              <span class="warning-text">Up to 10 occupations.</span>
+              <span class="warning-text">Up to 10 roles.</span>
             </div>
           </div>
 
           <!-- 空状態 -->
           <div v-else class="empty-state">
-            <p class="empty-message">Search and add occupations to build your framework</p>
+            <p class="empty-message">Search and add roles to build your framework</p>
           </div>
         </div>
 
@@ -80,7 +80,7 @@
             @click="$emit('review')"
             class="review-button"
           >
-            Build your framework ({{ selectedOccupations.length }})
+            Create framework
           </BaseButton>
           
           <BaseButton 

@@ -4,7 +4,7 @@
       <!-- ブレッドクラム -->
       <div class="breadcrumb">
         <button class="back-button" @click="$router.push('/')">
-          ← Back to framework selection
+          ← Back to role selection
         </button>
       </div>
 
@@ -13,7 +13,7 @@
         <div class="title-content">
           <h1>Preview</h1>
           <p class="subtitle">
-            Includes the skills for the following occupation(s): {{ occupationNames }}
+            Includes the skills for the following role(s): {{ occupationNames }}
           </p>
         </div>
         <BaseButton 
