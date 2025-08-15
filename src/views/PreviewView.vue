@@ -796,18 +796,6 @@ watch(codes, () => {
   }
 }
 
-// @media (max-width: 1000px) {
-//   .content-layout {
-//     grid-template-columns: minmax(150px, 25%) minmax(150px, 25%) minmax(400px, 50%);
-//     gap: $space-3;
-//   }
-  
-//   .categories-card,
-//   .skills-card {
-//     height: 250px;
-//   }
-// }
-
 @media (max-width: 800px) {
   .content-layout {
     grid-template-columns: 1fr;
@@ -822,6 +810,10 @@ watch(codes, () => {
   
   .details-card {
     min-height: 150px;
+  }
+
+  .download-button {
+    align-self: stretch;
   }
 }
 
