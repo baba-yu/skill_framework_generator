@@ -11,7 +11,7 @@
       <!-- タイトルエリア -->
       <div class="title-section">
         <div class="title-content">
-          <h1>Preview</h1>
+          <h2>Preview</h2>
           <p class="subtitle">
             Includes the skills for the following role(s): {{ occupationNames }}
           </p>
@@ -418,7 +418,7 @@ watch(codes, () => {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: $space-8;
+  margin-bottom: $space-4;
   padding-bottom: $space-6;
   border-bottom: $border-width solid $color-border-light;
   
@@ -437,14 +437,15 @@ watch(codes, () => {
   }
 }
 
-/* コンテンツレイアウト - デスクトップでは横並び、モバイルでは縦並び */
 .content-layout {
   display: grid;
-  grid-template-columns: 292px 292px 584px;
+  grid-template-columns: minmax(250px, 25%) minmax(250px, 25%) minmax(400px, 50%);
   gap: $space-6;
-  width: fit-content;
+  width: 100%;
+  max-width: 100%;
   margin: 0 auto;
   align-items: start;
+  overflow: hidden;
 }
 
 .content-section {
@@ -786,80 +787,117 @@ watch(codes, () => {
   }
 }
 
+
 /* レスポンシブ対応 - モバイルでは縦並び */
-@media (max-width: $breakpoint-lg) {
+@media (max-width: 1200px) {
   .content-layout {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto;
+    grid-template-columns: minmax(150px, 25%) minmax(150px, 25%) minmax(400px, 50%);
     gap: $space-4;
-    width: 100%;
-    margin: 0;
-  }
-  
-  .content-card {
-    max-width: 100%;
-  }
-  
-  .categories-card,
-  .skills-card {
-    height: 400px;
-  }
-  
-  .details-card {
-    min-height: 300px;
-    height: auto;
-  }
-  
-  .title-section {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: $space-4;
-  }
-  
-  .download-button {
-    align-self: stretch;
   }
 }
 
-@media (max-width: $breakpoint-md) {
-  .preview-view {
-    min-height: calc(100vh - #{$header-height});
-  }
+// @media (max-width: 1000px) {
+//   .content-layout {
+//     grid-template-columns: minmax(150px, 25%) minmax(150px, 25%) minmax(400px, 50%);
+//     gap: $space-3;
+//   }
   
-  .title-section {
-    padding: $space-3 0;
-    margin-bottom: $space-4;
-  }
-  
+//   .categories-card,
+//   .skills-card {
+//     height: 250px;
+//   }
+// }
+
+@media (max-width: 800px) {
   .content-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
     gap: $space-3;
-  }
-  
-  .content-card {
-    min-height: 250px;
   }
   
   .categories-card,
   .skills-card {
-    height: 300px;
+    height: 200px;
   }
   
   .details-card {
-    min-height: 250px;
-  }
-  
-  .column-header {
-    font-size: 10px;
-  }
-  
-  .category-item,
-  .skill-item {
-    height: 32px;
-  }
-  
-  .category-list,
-  .skills-list {
-    padding: $space-2;
+    min-height: 150px;
   }
 }
+
+// @media (max-width: $breakpoint-lg) {
+//   .content-layout {
+//     grid-template-columns: 1fr;
+//     grid-template-rows: auto auto auto;
+//     gap: $space-4;
+//     width: 100%;
+//     margin: 0;
+//   }
+  
+//   .content-card {
+//     max-width: 100%;
+//   }
+  
+//   .categories-card,
+//   .skills-card {
+//     height: 400px;
+//   }
+  
+//   .details-card {
+//     min-height: 300px;
+//     height: auto;
+//   }
+  
+//   .title-section {
+//     flex-direction: column;
+//     align-items: flex-start;
+//     gap: $space-4;
+//   }
+  
+//   .download-button {
+//     align-self: stretch;
+//   }
+// }
+
+// @media (max-width: $breakpoint-md) {
+//   .preview-view {
+//     min-height: calc(100vh - #{$header-height});
+//   }
+  
+//   .title-section {
+//     padding: $space-3 0;
+//     margin-bottom: $space-4;
+//   }
+  
+//   .content-layout {
+//     gap: $space-3;
+//   }
+  
+//   .content-card {
+//     min-height: 250px;
+//   }
+  
+//   .categories-card,
+//   .skills-card {
+//     height: 300px;
+//   }
+  
+//   .details-card {
+//     min-height: 250px;
+//   }
+  
+//   .column-header {
+//     font-size: 10px;
+//   }
+  
+//   .category-item,
+//   .skill-item {
+//     height: 32px;
+//   }
+  
+//   .category-list,
+//   .skills-list {
+//     padding: $space-2;
+//   }
+// }
 </style>

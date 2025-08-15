@@ -7,7 +7,7 @@
           <img src="@/assets/zipteam-icon.svg" alt="Zipteam" width="32" height="32" />
         </div>
         <div class="logo-text">
-          <h1 class="app-title">O*NET® Skill Framework Builder</h1>
+          <h1 class="app-title">Skill Framework Builder</h1>
         </div>
       </div>
       
