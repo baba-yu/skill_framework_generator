@@ -7,7 +7,7 @@
           <img src="@/assets/zipteam-icon.svg" alt="Zipteam" width="32" height="32" />
         </div>
         <div class="logo-text">
-          <h1 class="app-title">Skill Framework Builder</h1>
+          <h1 class="app-title" @click="handleLogoClick" role="button" tabindex="0" @keydown.enter="handleLogoClick">Skill Framework Generator</h1>
         </div>
       </div>
       
@@ -20,11 +20,31 @@
 </template>
 
 <script setup lang="ts">
+import { useRouter } from 'vue-router';
+import { useSelectionStore } from '@/store/selection';
+import { useSearchStore } from '@/store/search';
 import HeaderMenu from '@/components/HeaderMenu.vue';
+
+// Router and Stores
+const router = useRouter();
+const selection = useSelectionStore();
+const search = useSearchStore();
 
 defineEmits<{
   openCredit: [];
 }>();
+
+// Methods
+function handleLogoClick() {
+  // ストアをクリア
+  selection.clearSelection();
+  search.clear();
+  
+  // SearchViewに移動（現在がPreviewViewの場合のため）
+  if (router.currentRoute.value.path !== '/') {
+    router.push('/');
+  }
+}
 </script>
 
 <style scoped lang="scss">
@@ -66,10 +86,6 @@ defineEmits<{
   flex-shrink: 0;
   color: $color-primary;
   transition: $transition-colors;
-  
-  &:hover {
-    color: $color-primary-hover;
-  }
 }
 
 .logo-text {
@@ -83,6 +99,20 @@ defineEmits<{
   color: $color-text;
   line-height: $line-height-tight;
   white-space: nowrap;
+  cursor: pointer; // クリック可能であることを示す
+  transition: $transition-colors;
+  border-radius: $radius-sm;
+  padding: $space-1 $space-2;
+  margin: -#{$space-1} -#{$space-2}; // パディング分の余白を調整
+  
+  &:hover {
+    color: $color-primary;
+  }
+  
+  &:focus-visible {
+    outline: 2px solid $color-primary;
+    outline-offset: 2px;
+  }
   
   @media (max-width: $breakpoint-md) {
     font-size: $font-size-sm; // モバイルではさらに小さく
@@ -121,7 +151,8 @@ defineEmits<{
 
 /* アクセシビリティ */
 @media (prefers-reduced-motion: reduce) {
-  .logo-icon {
+  .logo-icon,
+  .app-title {
     transition: none;
   }
 }
