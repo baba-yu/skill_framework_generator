@@ -345,11 +345,12 @@ async function loadSkills() {
   }
 }
 
+//FIXME: This includes csv utils functions. It should be devided from here.
 function downloadCSV() {
   if (skills.value.length === 0) return;
   
   // ヘッダーを定義
-  const headers = ['Category', 'Skill Name', 'Description'];
+  const headers = ['category', 'skill_name', 'description']; 
   
   // データを2次元配列に変換
   const rows = skills.value.map(skill => [
