@@ -229,7 +229,8 @@ const availableCategories = computed(() => {
 
 const selectedCategorySkills = computed(() => {
   if (!selectedCategory.value) return [];
-  return skills.value.filter(s => s.category === selectedCategory.value);
+  const filteredSkills = skills.value.filter(s => s.category === selectedCategory.value);
+  return filteredSkills.sort((a, b) => a.name.localeCompare(b.name));
 });
 
 const occupationNames = computed(() => {
