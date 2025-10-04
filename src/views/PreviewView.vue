@@ -16,15 +16,37 @@
             Includes the skills for the following role(s): {{ occupationNames }}
           </p>
         </div>
-        <BaseButton 
-          variant="primary"
-          size="lg"
-          :disabled="!hasSkills"
-          @click="downloadCSV"
-          class="download-button"
-        >
-          Download
-        </BaseButton>
+        <div class="action-buttons">
+          <!-- 変換前：Technology Skillsが選択されている場合のみ表示 -->
+          <BaseButton
+            v-if="isTechnologySkillsSelected && !frameworkStore.isTransformed"
+            variant="secondary"
+            size="lg"
+            @click="handleTransform"
+            class="transform-button"
+          >
+            Expand Technology Skills
+          </BaseButton>
+          <!-- 変換中：常にRevertボタンを表示 -->
+          <BaseButton
+            v-if="frameworkStore.isTransformed"
+            variant="secondary"
+            size="lg"
+            @click="handleRevert"
+            class="revert-button"
+          >
+            Revert
+          </BaseButton>
+          <BaseButton 
+            variant="primary"
+            size="lg"
+            :disabled="!hasSkills"
+            @click="downloadCSV"
+            class="download-button"
+          >
+            Download
+          </BaseButton>
+        </div>
       </div>
 
       <!-- コンテンツレイアウト -->
@@ -91,84 +113,6 @@
               </p>
             </div>
             
-            <div v-else-if="!selectedCategory && !loading.loadingKeys.includes('preview')" class="no-selection-state">
-              <p class="no-selection-message">Select a category to view skills</p>
-            </div>
-            
-            <div v-else class="loading-state">
-              <div class="loading">
-                <div class="loading-dots">
-                  <span class="loading-dot"></span>
-                  <span class="loading-dot"></span>
-                  <span class="loading-dot"></span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- スキル詳細セクション -->
-        <div class="content-section">
-          <div class="column-header">SKILL DETAILS</div>
-          <div class="content-card details-card">
-            <div v-if="selectedSkill" class="skill-details">
-              <!-- パンくずナビ -->
-              <div class="skill-breadcrumb">
-                {{ formatCategoryName(selectedSkill.category) }} > {{ selectedSkill.name }}
-              </div>
-              
-              <!-- スキル名 -->
-              <h4 class="skill-title">{{ selectedSkill.name }}</h4>
-              
-              <!-- 説明ボックス -->
-              <div class="skill-description-box">
-                <div class="description-wrapper">
-                  <p 
-                    ref="descriptionRef"
-                    :class="[
-                      'skill-description', 
-                      { 'is-truncated': !isDescriptionExpanded && needsDescriptionTruncation }
-                    ]"
-                  >{{ selectedSkill.description }}</p>
-                  
-                  <button
-                    v-if="needsDescriptionTruncation"
-                    class="see-all-toggle"
-                    @click="toggleDescriptionExpanded"
-                    :aria-expanded="isDescriptionExpanded"
-                    :aria-label="isDescriptionExpanded ? 'テキストを省略表示する' : 'テキストを全文表示する'"
-                  >
-                    <span class="toggle-text">
-                      {{ isDescriptionExpanded ? 'See less' : 'See all' }}
-                    </span>
-                    <svg 
-                      class="toggle-icon"
-                      :class="{ 'is-expanded': isDescriptionExpanded }"
-                      width="12" 
-                      height="12" 
-                      viewBox="0 0 12 12" 
-                      fill="none"
-                    >
-                      <path 
-                        d="M3 4.5L6 7.5L9 4.5" 
-                        stroke="currentColor" 
-                        stroke-width="1.5" 
-                        stroke-linecap="round" 
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            </div>
-            
-            <div v-else-if="selectedCategory && selectedCategorySkills.length === 0" class="empty-state">
-              <h4 class="empty-title">No Skills Available</h4>
-              <p class="empty-message">
-                There are no skills in the "{{ formatCategoryName(selectedCategory) }}" category.
-              </p>
-            </div>
-            
             <div v-else-if="selectedCategory" class="no-selection-state">
               <h4 class="no-selection-title">Select a Skill</h4>
               <p class="no-selection-message">
@@ -177,6 +121,60 @@
             </div>
             
             <div v-else class="initial-state">
+              <h4 class="initial-title">Skill Details</h4>
+              <p class="initial-message">
+                Select a category and skill to view detailed information.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- スキル詳細セクション -->
+        <div class="content-section">
+          <div class="column-header">SKILL DETAILS</div>
+          <div class="content-card details-card">
+            <div v-if="selectedSkill" class="skill-details">
+              <div class="skill-breadcrumb">
+                {{ formatCategoryName(selectedSkill.category) }} > {{ selectedSkill.name }}
+              </div>
+              
+              <h3 class="skill-title">{{ selectedSkill.name }}</h3>
+              
+              <div class="skill-description-box">
+                <div class="description-wrapper">
+                  <p
+                    ref="descriptionRef"
+                    :class="['skill-description', { 'is-truncated': needsDescriptionTruncation && !isDescriptionExpanded }]"
+                  >
+                    {{ selectedSkill.description }}
+                  </p>
+                  
+                  <button
+                    v-if="needsDescriptionTruncation"
+                    @click="toggleDescriptionExpanded"
+                    class="see-all-toggle"
+                  >
+                    <span class="toggle-text">
+                      {{ isDescriptionExpanded ? 'See less' : 'See all' }}
+                    </span>
+                    <span :class="['toggle-icon', { 'is-expanded': isDescriptionExpanded }]">
+                      ▼
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <div v-else-if="selectedCategory" class="no-selection-state">
+              <div class="no-selection-icon">👈</div>
+              <h4 class="no-selection-title">Select a Skill</h4>
+              <p class="no-selection-message">
+                Choose a skill from the list to view its details.
+              </p>
+            </div>
+            
+            <div v-else class="initial-state">
+              <div class="initial-icon">📚</div>
               <h4 class="initial-title">Skill Details</h4>
               <p class="initial-message">
                 Select a category and skill to view detailed information.
@@ -196,6 +194,7 @@ import { storeToRefs } from 'pinia';
 import { useSelectionStore } from '@/store/selection';
 import { useSearchStore } from '@/store/search';
 import { useLoadingStore } from '@/store/loading';
+import { useFrameworkStore } from '@/store/framework';
 import { fetchFrameworkPreviewAll, type SkillItem } from '@/api/preview';
 import { downloadCsv } from '@/utils/csv';
 import BaseLayout from '@/components/base/BaseLayout.vue';
@@ -206,6 +205,7 @@ const route = useRoute();
 const selection = useSelectionStore();
 const search = useSearchStore();
 const loading = useLoadingStore();
+const frameworkStore = useFrameworkStore();
 const { selectedCodes: codes } = storeToRefs(selection);
 
 // State
@@ -219,35 +219,47 @@ const descriptionRef = ref<HTMLElement | null>(null);
 const isDescriptionExpanded = ref(false);
 const needsDescriptionTruncation = ref(false);
 const MAX_DESCRIPTION_LINES = 3;
-const MAX_DESCRIPTION_LENGTH = 200; // 200文字で省略
+const MAX_DESCRIPTION_LENGTH = 200;
 
-// Computed
+// Computed - 表示用スキルデータ
+const displaySkills = computed(() => {
+  return frameworkStore.currentSkills.length > 0 
+    ? frameworkStore.currentSkills 
+    : skills.value;
+});
+
+// Computed - 利用可能なカテゴリー
 const availableCategories = computed(() => {
-  const categories = [...new Set(skills.value.map(s => s.category))];
+  const categories = [...new Set(displaySkills.value.map(s => s.category))];
   return categories.sort();
 });
 
+// Computed - 選択されたカテゴリーのスキル
 const selectedCategorySkills = computed(() => {
   if (!selectedCategory.value) return [];
-  const filteredSkills = skills.value.filter(s => s.category === selectedCategory.value);
+  const filteredSkills = displaySkills.value.filter(s => s.category === selectedCategory.value);
   return filteredSkills.sort((a, b) => a.name.localeCompare(b.name));
 });
 
+// Computed - Technology Skillsが選択されているか
+const isTechnologySkillsSelected = computed(() => {
+  return selectedCategory.value === 'technology_skills' || 
+         selectedCategory.value === 'Technology Skills';
+});
+
+// Computed - occupation names
 const occupationNames = computed(() => {
-  // 新しいアプローチ：選択ストアから直接取得
   const selectedOccupations = selection.allSelectedOccupations;
   
   if (selectedOccupations.length > 0) {
-    // 選択ストアから職業タイトルを取得
     return selectedOccupations.map(occ => occ.title).join(', ');
   } else {
-    // フォールバック: 件数表示
     const count = codes.value.length;
     return `${count} occupation${count !== 1 ? 's' : ''}`;
   }
 });
 
-const hasSkills = computed(() => skills.value.length > 0);
+const hasSkills = computed(() => displaySkills.value.length > 0);
 
 // Description truncation methods
 const checkDescriptionTruncation = () => {
@@ -259,27 +271,14 @@ const checkDescriptionTruncation = () => {
   const description = selectedSkill.value.description;
   const lines = description.split('\n');
   
-  console.log('=== Description Analysis ===');
-  console.log('Description lines:', lines.length);
-  console.log('Description length:', description.length);
-  console.log('Description preview:', description.substring(0, 100) + '...');
-  console.log('Lines array:', lines);
-  
-  // 改行コードによる行数チェック OR 文字数による判定
   const hasMultipleLines = lines.length > MAX_DESCRIPTION_LINES;
   const isTooLong = description.length > MAX_DESCRIPTION_LENGTH;
   
   needsDescriptionTruncation.value = hasMultipleLines || isTooLong;
-  
-  console.log('hasMultipleLines:', hasMultipleLines);
-  console.log('isTooLong:', isTooLong);
-  console.log('needsDescriptionTruncation:', needsDescriptionTruncation.value);
-  console.log('========================');
 };
 
 const toggleDescriptionExpanded = () => {
   isDescriptionExpanded.value = !isDescriptionExpanded.value;
-  console.log('Description expanded:', isDescriptionExpanded.value);
 };
 
 // Watchers
@@ -293,10 +292,9 @@ watch(() => selectedSkill.value, () => {
 // Methods
 function selectCategory(category: string) {
   selectedCategory.value = category;
-  selectedSkill.value = null; // まずリセット
+  selectedSkill.value = null;
   
-  // カテゴリのスキルを取得して最初のスキルを自動選択
-  const categorySkills = skills.value.filter(s => s.category === category);
+  const categorySkills = displaySkills.value.filter(s => s.category === category);
   if (categorySkills.length > 0) {
     selectedSkill.value = categorySkills[0];
   }
@@ -334,6 +332,9 @@ async function loadSkills() {
     const data = await fetchFrameworkPreviewAll(codes.value);
     skills.value = data;
     
+    // frameworkStoreにオリジナルスキルをセット
+    frameworkStore.setOriginalSkills(data);
+    
     // 最初のカテゴリーを自動選択
     if (availableCategories.value.length > 0) {
       selectCategory(availableCategories.value[0]);
@@ -346,22 +347,38 @@ async function loadSkills() {
   }
 }
 
-//FIXME: This includes csv utils functions. It should be devided from here.
 function downloadCSV() {
-  if (skills.value.length === 0) return;
+  if (displaySkills.value.length === 0) return;
   
-  // ヘッダーを定義
   const headers = ['category', 'skill_name', 'description']; 
   
-  // データを2次元配列に変換
-  const rows = skills.value.map(skill => [
+  const rows = displaySkills.value.map(skill => [
     formatCategoryName(skill.category),
     skill.name,
     skill.description
   ]);
   
-  // 正しく3つの引数を渡す
   downloadCsv('skill-framework.csv', headers, rows);
+}
+
+// 変換処理
+function handleTransform() {
+  frameworkStore.transformSkills();
+  
+  // 変換後、最初のカテゴリーを自動選択
+  if (availableCategories.value.length > 0) {
+    selectCategory(availableCategories.value[0]);
+  }
+}
+
+// 元に戻す処理
+function handleRevert() {
+  frameworkStore.revertTransform();
+  
+  // 元に戻した後、最初のカテゴリーを自動選択
+  if (availableCategories.value.length > 0) {
+    selectCategory(availableCategories.value[0]);
+  }
 }
 
 // Lifecycle
@@ -439,6 +456,12 @@ watch(codes, () => {
   }
 }
 
+.action-buttons {
+  display: flex;
+  gap: $space-3;
+  align-items: center;
+}
+
 .content-layout {
   display: grid;
   grid-template-columns: minmax(250px, 25%) minmax(250px, 25%) minmax(400px, 50%);
@@ -455,7 +478,6 @@ watch(codes, () => {
   flex-direction: column;
 }
 
-/* カラムヘッダー */
 .column-header {
   font-size: $font-size-xs;
   font-weight: $font-weight-bold;
@@ -466,7 +488,6 @@ watch(codes, () => {
   margin-bottom: $space-2;
 }
 
-/* コンテンツカード */
 .content-card {
   background: $color-white;
   border: $border-width solid $color-border;
@@ -486,59 +507,7 @@ watch(codes, () => {
   height: auto;
 }
 
-/* カテゴリーリスト */
-.category-list {
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  height: 100%;
-  padding: $space-2;
-  gap: 2px;
-}
-
-.category-item {
-  background: none;
-  border: none;
-  padding: 0 $space-3;
-  text-align: left;
-  cursor: pointer;
-  color: #828282;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-normal;
-  transition: $transition-colors;
-  position: relative;
-  margin: 0;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-  
-  &:hover {
-    color: #333333;
-  }
-  
-  &.active {
-    background: #F3F6F7;
-    color: #333333;
-    font-weight: $font-weight-medium;
-    border-radius: $radius-sm;
-  }
-  
-  &:focus-visible {
-    outline: none;
-    background: $color-gray-100;
-  }
-}
-
-.category-name {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  width: 100%;
-}
-
-/* スキルリスト */
+.category-list,
 .skills-list {
   display: flex;
   flex-direction: column;
@@ -548,6 +517,7 @@ watch(codes, () => {
   gap: 2px;
 }
 
+.category-item,
 .skill-item {
   background: none;
   border: none;
@@ -582,6 +552,7 @@ watch(codes, () => {
   }
 }
 
+.category-name,
 .skill-name {
   display: block;
   overflow: hidden;
@@ -590,7 +561,6 @@ watch(codes, () => {
   width: 100%;
 }
 
-/* スキル詳細 */
 .skill-details {
   padding: $space-5;
   height: 100%;
@@ -685,7 +655,6 @@ watch(codes, () => {
   }
 }
 
-/* 状態表示 */
 .loading-state,
 .error-state,
 .empty-state,
@@ -729,6 +698,16 @@ watch(codes, () => {
   margin-bottom: $space-2;
 }
 
+.error-title,
+.empty-title,
+.no-selection-title,
+.initial-title {
+  margin: 0 0 $space-2 0;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: #4F4F4F;
+}
+
 .error-message,
 .empty-message,
 .no-selection-message,
@@ -739,16 +718,6 @@ watch(codes, () => {
   line-height: $line-height-relaxed;
 }
 
-.empty-title,
-.no-selection-title,
-.initial-title {
-  margin: 0 0 $space-2 0;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-semibold;
-  color: #4F4F4F;
-}
-
-/* カスタムスクロールバー */
 .category-list,
 .skills-list,
 .skill-details {
@@ -770,7 +739,6 @@ watch(codes, () => {
   }
 }
 
-/* アクセシビリティ対応 */
 @media (prefers-reduced-motion: reduce) {
   .skill-description,
   .toggle-icon,
@@ -779,119 +747,14 @@ watch(codes, () => {
   }
 }
 
-/* アニメーション */
 @keyframes loadingDot {
   0%, 80%, 100% {
     transform: scale(0);
+    opacity: 0.5;
   }
   40% {
     transform: scale(1);
+    opacity: 1;
   }
 }
-
-
-/* レスポンシブ対応 - モバイルでは縦並び */
-@media (max-width: 1200px) {
-  .content-layout {
-    grid-template-columns: minmax(150px, 25%) minmax(150px, 25%) minmax(400px, 50%);
-    gap: $space-4;
-  }
-}
-
-@media (max-width: 800px) {
-  .content-layout {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto;
-    gap: $space-3;
-  }
-  
-  .categories-card,
-  .skills-card {
-    height: 200px;
-  }
-  
-  .details-card {
-    min-height: 150px;
-  }
-
-  .download-button {
-    align-self: stretch;
-  }
-}
-
-// @media (max-width: $breakpoint-lg) {
-//   .content-layout {
-//     grid-template-columns: 1fr;
-//     grid-template-rows: auto auto auto;
-//     gap: $space-4;
-//     width: 100%;
-//     margin: 0;
-//   }
-  
-//   .content-card {
-//     max-width: 100%;
-//   }
-  
-//   .categories-card,
-//   .skills-card {
-//     height: 400px;
-//   }
-  
-//   .details-card {
-//     min-height: 300px;
-//     height: auto;
-//   }
-  
-//   .title-section {
-//     flex-direction: column;
-//     align-items: flex-start;
-//     gap: $space-4;
-//   }
-  
-//   .download-button {
-//     align-self: stretch;
-//   }
-// }
-
-// @media (max-width: $breakpoint-md) {
-//   .preview-view {
-//     min-height: calc(100vh - #{$header-height});
-//   }
-  
-//   .title-section {
-//     padding: $space-3 0;
-//     margin-bottom: $space-4;
-//   }
-  
-//   .content-layout {
-//     gap: $space-3;
-//   }
-  
-//   .content-card {
-//     min-height: 250px;
-//   }
-  
-//   .categories-card,
-//   .skills-card {
-//     height: 300px;
-//   }
-  
-//   .details-card {
-//     min-height: 250px;
-//   }
-  
-//   .column-header {
-//     font-size: 10px;
-//   }
-  
-//   .category-item,
-//   .skill-item {
-//     height: 32px;
-//   }
-  
-//   .category-list,
-//   .skills-list {
-//     padding: $space-2;
-//   }
-// }
 </style>
