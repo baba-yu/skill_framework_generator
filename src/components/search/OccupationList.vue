@@ -169,6 +169,7 @@ function isSelected(code: string): boolean {
   img {
     opacity: 0.7;
     transition: opacity 0.3s ease;
+    object-fit: contain;
   }
 }
 
@@ -206,8 +207,8 @@ function isSelected(code: string): boolean {
     margin-bottom: $space-4;
     
     img {
-      width: 48px;
-      height: 48px;
+      width: 80px;
+      height: 80px;
     }
   }
   
