@@ -68,7 +68,7 @@
   </template>
   
   <script setup lang="ts">
-  import { ref, computed, watch } from 'vue';
+  import { ref, computed, watch, nextTick } from 'vue';
   
   interface Props {
     content?: string;
@@ -132,14 +132,18 @@
       left: `${left}px`,
       maxWidth: props.maxWidth,
       zIndex: 1070,
-      transform: 'translateY(-50%)'
+      transform: 'translateY(-50%)',
+      willChange: 'transform, opacity',
+      backfaceVisibility: 'hidden'
     };
   }
   
   // 表示されたときに位置を更新
   watch(isVisible, (newVal) => {
     if (newVal) {
-      updatePosition();
+      nextTick(() => {
+        updatePosition();
+      });
     }
   });
   </script>
@@ -166,6 +170,12 @@
     white-space: nowrap;
     opacity: 0;
     animation: tooltipFadeIn 0.2s ease-out forwards;
+
+    /* For Windows */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    will-change: transform, opacity;
+    backface-visibility: hidden;
   
     &.tooltip-multiline {
       padding: $space-3 $space-4;
@@ -223,6 +233,16 @@
   @media (prefers-reduced-motion: reduce) {
     .tooltip {
       animation: none !important;
+    }
+  }
+
+  /* For Windows */
+  @supports (-webkit-appearance: none) {
+    .tooltip {
+      /* Webkitエンジン用の追加設定 */
+      -webkit-backface-visibility: hidden;
+      -webkit-perspective: 1000;
+      -webkit-transform: translate3d(0, 0, 0);
     }
   }
   
