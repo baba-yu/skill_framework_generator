@@ -233,6 +233,8 @@
   @media (prefers-reduced-motion: reduce) {
     .tooltip {
       animation: none !important;
+      transition: none;
+      opacity: 1;
     }
   }
 
