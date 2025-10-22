@@ -265,7 +265,7 @@ function handleBlur() {
   // 少し遅延させてクリックイベントを処理できるようにする
   setTimeout(() => {
     hideSuggestions();
-  }, 200);
+  }, 250);
 }
 
 function updateSuggestions() {
