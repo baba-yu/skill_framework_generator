@@ -265,7 +265,7 @@ function handleBlur() {
   // 少し遅延させてクリックイベントを処理できるようにする
   setTimeout(() => {
     hideSuggestions();
-  }, 250);
+  }, 150);
 }
 
 function updateSuggestions() {
@@ -360,8 +360,9 @@ defineExpose({
 }
 
 .search-input-section {
-  flex: 0 0 700px;
+  flex: 1 1 auto;
   min-width: 300px;
+  max-width: 700px;
 }
 
 .search-input-container {
@@ -623,9 +624,11 @@ defineExpose({
 
 @media (max-width: $breakpoint-md) {
   .search-input-section {
+    flex: 1 1 auto;
     min-width: unset;
+    max-width: 400px;
   }
-  
+
   .search-input-container {
     border: 0px solid transparent !important;
     padding: $space-2;
