@@ -145,9 +145,11 @@ function handleLogoClick() {
 
 @media (max-width: $breakpoint-sm) {
   .app-title {
-    display: none; // 非常に小さい画面では非表示
+    font-size: $font-size-xs;
+    max-width: 140px;
+    text-overflow: ellipsis;
+    }
   }
-}
 
 /* アクセシビリティ */
 @media (prefers-reduced-motion: reduce) {

@@ -86,7 +86,7 @@
       <div class="spacer"></div>
 
       <!-- アクションボタン -->
-      <div class="action-buttons">
+      <div class="action-buttons" :class="{ hidden: selectedCount === 0 }">
         <!-- プレビュー選択ボタン -->
         <BaseButton 
           variant="primary"
@@ -360,8 +360,9 @@ defineExpose({
 }
 
 .search-input-section {
-  flex: 0 0 700px;
+  flex: 1 1 auto;
   min-width: 300px;
+  max-width: 700px;
 }
 
 .search-input-container {
@@ -610,6 +611,8 @@ defineExpose({
   
   .search-input-section {
     flex: 1 1 auto;
+    min-width: unset;
+    max-width: 700px;
   }
   
   .spacer {
@@ -617,23 +620,50 @@ defineExpose({
   }
   
   .action-buttons {
-    align-self: stretch;
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    z-index: 1000;
+    padding: $space-3;
+    justify-content: center;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    
+    &.hidden {
+      transform: translateY(100%);
+      opacity: 0;
+      pointer-events: none;
+    }
+  }
+
+  .preview-button {
+    flex: 1; // モバイルではボタンを横幅いっぱいに
   }
 }
 
 @media (max-width: $breakpoint-md) {
   .search-input-section {
+    flex: 1 1 auto;
     min-width: unset;
+    max-width: 400px;
   }
-  
+
   .search-input-container {
     border: 0px solid transparent !important;
     padding: $space-2;
   }
   
   .action-buttons {
-    flex-direction: column;
+    bottom: 15px;
+    left: 15px;
+    right: 15px;
+    padding: $space-2;
+    flex-direction: row;
     gap: $space-2;
+  }
+
+  .preview-button {
+    flex: 1; // モバイルではボタンを横幅いっぱいに
   }
 }
 </style>
