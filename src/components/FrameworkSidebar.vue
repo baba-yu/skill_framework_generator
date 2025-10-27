@@ -384,8 +384,8 @@ function removeOccupation(code: string) {
 /* レスポンシブ対応 */
 @media (max-width: $breakpoint-md) {
   .framework-sidebar {
-    width: 100vw;
-    max-width: 100vw;
+    width: 100%;
+    max-width: 100%;
   }
   
   .sidebar-header {
