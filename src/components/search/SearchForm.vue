@@ -645,7 +645,7 @@ defineExpose({
   .search-input-section {
     flex: 1 1 auto;
     min-width: unset;
-    max-width: 400px;
+    max-width: 100%;
   }
 
   .search-input-container {
