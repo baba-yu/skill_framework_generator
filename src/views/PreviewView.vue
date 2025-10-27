@@ -16,7 +16,7 @@
             Includes the skills for the following role(s): {{ occupationNames }}
           </p>
         </div>
-        <div class="action-buttons">
+        <div class="action-buttons desktop-only">
           <!-- 変換前：Technology Skillsが選択されている場合のみ表示 -->
           <BaseButton
             v-if="isTechnologySkillsSelected && !frameworkStore.isTransformed"
@@ -89,6 +89,38 @@
               </button>
             </div>
           </div>
+        </div>
+
+
+        <!-- モバイル用のアクションボタン（一番下に配置） -->
+        <div class="mobile-actions">
+          <BaseButton
+            v-if="isTechnologySkillsSelected && !frameworkStore.isTransformed"
+            variant="secondary"
+            size="sm"
+            @click="handleTransform"
+            class="transform-button mobile-button"
+          >
+            Expand Technology Skills
+          </BaseButton>
+          <BaseButton
+            v-if="frameworkStore.isTransformed"
+            variant="secondary"
+            size="sm"
+            @click="handleRevert"
+            class="revert-button mobile-button"
+          >
+            Revert
+          </BaseButton>
+          <BaseButton 
+            variant="primary"
+            size="sm"
+            :disabled="!hasSkills"
+            @click="downloadCSV"
+            class="download-button mobile-button"
+          >
+            Download
+          </BaseButton>
         </div>
 
         <!-- スキルセクション -->
@@ -413,6 +445,9 @@ watch(codes, () => {
   
   @media (max-width: $breakpoint-md) {
     padding: $space-4 $layout-padding-mobile $space-6;
+    padding-bottom: 100px;
+    max-width: 100%;
+    margin: 0;
   }
 }
 
@@ -460,6 +495,10 @@ watch(codes, () => {
   display: flex;
   gap: $space-3;
   align-items: center;
+
+  @media (max-width: $breakpoint-md) {
+    display: none;
+  }
 }
 
 .content-layout {
@@ -471,11 +510,44 @@ watch(codes, () => {
   margin: 0 auto;
   align-items: start;
   overflow: hidden;
+
+  /* モバイル用レイアウト - 水平スクロール可能なカード配置 */
+  @media (max-width: $breakpoint-md) {
+    display: flex;
+    flex-direction: column;
+    gap: $space-4;
+    overflow: visible;
+    
+    /* スクロールバーのスタイリング */
+    &::-webkit-scrollbar {
+      height: 6px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      // background: $color-background;
+      border-radius: 3px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: $color-border;
+      border-radius: 3px;
+      
+      &:hover {
+        background: $color-text-secondary;
+      }
+    }
+  }
 }
 
 .content-section {
   display: flex;
   flex-direction: column;
+
+  @media (max-width: $breakpoint-md) {
+    flex-shrink: 0;
+    width: 100%;
+    max-width: 100%;
+  }
 }
 
 .column-header {
@@ -495,16 +567,32 @@ watch(codes, () => {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+
+  @media (max-width: $breakpoint-md) {
+    width: 100%;
+  }
 }
 
 .categories-card,
 .skills-card {
   height: 630px;
+
+  @media (max-width: $breakpoint-md) {
+    height: 300px;
+  }
+  
+  @media (max-width: $breakpoint-sm) {
+    height: 200px;
+  }
 }
 
 .details-card {
   min-height: 230px;
   height: auto;
+
+  @media (max-width: $breakpoint-md) {
+    min-height: 200px;
+  }
 }
 
 .category-list,
@@ -515,6 +603,11 @@ watch(codes, () => {
   height: 100%;
   padding: $space-2;
   gap: 2px;
+
+  @media (max-width: $breakpoint-md) {
+    width: 100%;
+    box-sizing: border-box;
+  }
 }
 
 .category-item,
@@ -534,6 +627,11 @@ watch(codes, () => {
   display: flex;
   align-items: center;
   flex-shrink: 0;
+
+  @media (max-width: $breakpoint-md) {
+    width: 100%;
+    box-sizing: border-box;
+  }
   
   &:hover {
     color: #333333;
@@ -565,6 +663,11 @@ watch(codes, () => {
   padding: $space-5;
   height: 100%;
   overflow-y: auto;
+
+  @media (max-width: $breakpoint-md) {
+    width: 100%;
+    box-sizing: border-box;
+  }
 }
 
 .skill-breadcrumb {
@@ -593,6 +696,40 @@ watch(codes, () => {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.desktop-only {
+  @media (max-width: $breakpoint-md) {
+    display: none !important;
+  }
+}
+
+.mobile-actions {
+  display: none;
+  
+  @media (max-width: $breakpoint-md) {
+    display: flex;
+    flex-direction: row;
+    gap: $space-2;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: $space-3;
+    z-index: 100;
+    justify-content: center;
+    flex-wrap: wrap;
+    background: $color-white;
+    border-top: $border-width solid $color-border-light;
+    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.07);
+  }
+  
+  .mobile-button {
+    width: auto;
+    min-width: 120px;
+    flex: 0 0 auto;
+    box-shadow: none;
+  }
 }
 
 .skill-description {

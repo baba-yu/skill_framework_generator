@@ -437,6 +437,10 @@ defineEmits<{
       height: 16px;
     }
   }
+
+  .info-icon {
+    display: none !important;
+  }
 }
 
 /* アクセシビリティ */
